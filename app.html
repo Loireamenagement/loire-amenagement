@@ -15,6 +15,8 @@
 html,body{height:100%;max-width:100%;overflow-x:hidden;background:#e8e8e8;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
 .app-phone{max-width:430px;margin:0 auto;height:100vh;background:#f5f0e8;box-shadow:0 0 40px rgba(0,0,0,.3);display:flex;flex-direction:column;overflow:hidden;position:relative}
 .app-tablet{display:block;width:100%;height:100vh;background:#f5f0e8;overflow:hidden;position:relative}
+#sidebar-wrap{position:absolute;left:0;top:0;width:230px;height:100%;z-index:10}
+#content-wrap{position:absolute;left:230px;top:0;right:0;bottom:0;overflow:hidden}
 .scr{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:70px}
 .scr-tablet{position:absolute;left:230px;top:0;right:0;bottom:0;overflow-y:auto;-webkit-overflow-scrolling:touch}
 .scr::-webkit-scrollbar,.scr-tablet::-webkit-scrollbar{width:3px}
@@ -509,6 +511,7 @@ function homeHTML(isT) {
   const top = VEDETTES.slice(0, isT?6:3);
   const PRIX_COL = {'€':'#60A040','€€':'#9A7020','€€€':'#C07820','€€€€':'#B04010'};
   return `<div class="${isT?'scr-tablet':'scr'} fi">
+    <div style="background:#FF0000;height:8px;width:100%"></div>
     <div style="background:linear-gradient(145deg,#002880,#0040A0);padding:${isT?'40px 40px 32px':'24px 20px 20px'};position:relative;overflow:hidden">
       <div style="position:absolute;right:-30px;top:-30px;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,.04)"></div>
       ${!isT?`<div style="display:flex;align-items:center;gap:14px;margin-bottom:14px">
@@ -1099,7 +1102,8 @@ function showRecapPage(data) {
     <div style="max-width:600px;margin:0 auto;min-height:100vh;background:#f5f0e8">
 
       <!-- Header -->
-      <div style="background:linear-gradient(145deg,#002880,#0040A0);padding:32px 24px 28px">
+      <div style="background:#FF0000;height:8px;width:100%"></div>
+    <div style="background:linear-gradient(145deg,#002880,#0040A0);padding:32px 24px 28px">
         <div style="font-family:sans-serif;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.6);margin-bottom:8px">Loire Aménagement</div>
         <div style="font-family:Georgia,serif;font-size:26px;color:#fff;margin-bottom:6px">Récapitulatif de votre projet</div>
         <div style="font-family:sans-serif;font-size:12px;color:rgba(255,255,255,.7)">Rendez-vous du ${data.date}${data.nom?' · '+data.nom:''}</div>
@@ -1154,30 +1158,17 @@ function render() {
   const isT = isTablet();
   const app = document.getElementById('app');
   if(isT) {
-    const SW = 230;
-    const VW = window.innerWidth;
-    const VH = window.innerHeight;
-    app.className = '';
-    app.style.cssText = 'position:relative;width:'+VW+'px;height:'+VH+'px;overflow:hidden;background:#f5f0e8;display:block';
-    // Force sidebar and content width via inline styles in the HTML
-    const sidebarH = sidebarHTML().replace(
-      'class="sidebar"',
-      'style="position:absolute;left:0;top:0;width:'+SW+'px;height:100%;z-index:10;background:linear-gradient(180deg,#001A60 0%,#0040A0 60%,#0050B8 100%);display:flex;flex-direction:column;box-shadow:2px 0 20px rgba(0,0,0,.15);overflow-y:auto"'
-    );
-    const contentH = getScreenHTML(true).replace(
-      'class="scr-tablet fi"',
-      'style="position:absolute;left:'+SW+'px;top:0;width:'+( VW-SW )+'px;height:100%;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;background:#f5f0e8;animation:fi .18s ease both"'
-    ).replace(
-      'class="split"',
-      'style="position:absolute;left:'+SW+'px;top:0;width:'+( VW-SW )+'px;height:100%;display:flex;overflow:hidden"'
-    );
-    app.innerHTML = sidebarH + contentH;
+    app.className = 'app-tablet';
+    app.innerHTML = '<div id="sidebar-wrap"></div><div id="content-wrap"></div>';
+    document.getElementById('sidebar-wrap').innerHTML = sidebarHTML();
+    document.getElementById('content-wrap').innerHTML = getScreenHTML(true)
+      .replace('class="scr-tablet fi"','class="scr-tablet fi" id="scr-main"')
+      .replace('class="split"','class="split" id="scr-main"');
   } else {
     app.className = 'app-phone';
     app.innerHTML = getScreenHTML(false) + bottomNavHTML();
   }
 }
-
 window.addEventListener('resize', ()=>{ render(); });
 window.addEventListener('DOMContentLoaded', function() { if(!checkRecapHash()) render(); });
 
