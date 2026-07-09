@@ -273,7 +273,7 @@ const MAT_CATS = [
   {label:"Terrasses", items:[
     {n:"Grès cérame sur plots", d:"Tous formats. Accès sous-terrasse préservé. Résistance gel certifiée R11.", c1:"#c4a882", c2:"#e0cdb8", use:"Terrasses"},
     {n:"Terrassteel", d:"Terrasse mixte grès cérame ou bois sur structure métallique. Marque Terrassteel.", c1:"#a0a8b0", c2:"#c8d0d8", use:"Terrasses"},
-    {n:"Pierre naturelle", d:"Calcaire, grès, ardoise. Teintes naturelles et rendu authentique.", c1:"#c4a870", c2:"#dcc8a0", use:"Terrasses · Abords piscine", docs:[{label:"📋 Fiche dallage", url:"https://drive.google.com/file/d/1ngGqJYJ9-GkCbJcsISsiZAvQwvgGO4vI/view"}]},
+    {n:"Pierre naturelle", d:"Calcaire, grès, ardoise. Teintes naturelles et rendu authentique.", c1:"#c4a870", c2:"#dcc8a0", use:"Terrasses · Abords piscine", docs:[{label:"📋 Fiche pavage", url:"https://drive.google.com/file/d/1bMt51VtXubqSWSQz7jo4Hubp4mExRebh/view"},{label:"📋 Fiche dallage", url:"https://drive.google.com/file/d/1ngGqJYJ9-GkCbJcsISsiZAvQwvgGO4vI/view"}]},
     {n:"Bois pin ou exotique", d:"Lames en pin traité autoclave ou bois exotique. Chaleureux et naturel.", c1:"#b88048", c2:"#d4a870", use:"Terrasses"},
     {n:"Bois composite Trex", d:"Aspect bois, entretien nul. Résiste UV et humidité. Garantie 25 ans. Marque Trex.", c1:"#987060", c2:"#b89080", use:"Terrasses"},
     {n:"Résine de marbre Resineo", d:"Moquette de pierre sur dalle existante ou neuve. Rendu haut de gamme, antidérapant.", c1:"#d4c4a0", c2:"#e8dcc4", use:"Terrasses · Allées", docs:[{label:"📋 Fiche technico-commerciale", url:"https://drive.google.com/file/d/16MH09EvapTTol1JhaaE07EU3wj7qZqBv/view"},{label:"📖 Catalogue Résineo®", url:"https://drive.google.com/file/d/1b98kx-D1zMQ-u3_R2h0sHkorDtHvfvcp/view"}]},
@@ -764,7 +764,7 @@ function prestationDetailHTML(isT) {
     <div style="display:grid;grid-template-columns:${isT?'1fr 1fr 1fr':'1fr 1fr'};gap:${isT?12:8}px">
       ${matItems.map((m,i)=>`
       <button onclick="goTo('mdet',{selM:MAT_CATS[${matCatIdx}].items[${i}],selMCat:${matCatIdx},selMIdx:${i}})" style="background:#fdfcf9;border:1px solid #e8e0d4;border-radius:10px;overflow:hidden;cursor:pointer;text-align:left;transition:transform .1s" onmouseenter="this.style.transform='translateY(-2px)'" onmouseleave="this.style.transform='none'">
-        <div style="height:${isT?60:48}px;background:linear-gradient(135deg,${m.c1},${m.c2})"></div>
+        <div style="height:${isT?60:48}px;background:${(m.photoKey&&typeof PHOTOS_DB!=='undefined'&&PHOTOS_DB[m.photoKey]?.length)?`url(${PHOTOS_DB[m.photoKey][0]}) center/cover no-repeat`:`linear-gradient(135deg,${m.c1},${m.c2})`}"></div>
         <div style="padding:8px 10px">
           <div style="${sf('font-size:11px;font-weight:700;color:#1a1a1a;margin-bottom:2px')}">${esc(m.n)}</div>
           <div style="${sf('font-size:9px;color:#6b6b6b;font-weight:300')}">${esc(m.use.split('·')[0].trim())}</div>
