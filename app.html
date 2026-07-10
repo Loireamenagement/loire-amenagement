@@ -760,14 +760,6 @@ function prestationDetailHTML(isT) {
       </div>
     </div>`:''}`;
   } else if(S.pTab==='materiaux') {
-    function matThumb(m,isT) {
-      var h = isT ? 60 : 48;
-      var bg = 'background:linear-gradient(135deg,' + m.c1 + ',' + m.c2 + ')';
-      if (m.photoKey && typeof PHOTOS_DB !== 'undefined' && PHOTOS_DB[m.photoKey] && PHOTOS_DB[m.photoKey].length) {
-        return '<div style="height:' + h + 'px;overflow:hidden;position:relative;' + bg + '"><img src="' + PHOTOS_DB[m.photoKey][0] + '" style="width:100%;height:100%;object-fit:cover;display:block"></div>';
-      }
-      return '<div style="height:' + h + 'px;' + bg + '"></div>';
-    }
     tabContent = `<p style="${sf('font-size:11px;color:#6b6b6b;margin-bottom:14px;font-weight:300')}">Matériaux et solutions disponibles pour cette prestation :</p>
     <div style="display:grid;grid-template-columns:${isT?'1fr 1fr 1fr':'1fr 1fr'};gap:${isT?12:8}px">
       ${matItems.map((m,i)=>`
@@ -849,9 +841,7 @@ function materiauxHTML(isT) {
     <div style="display:grid;grid-template-columns:${isT?'1fr 1fr 1fr 1fr':'1fr 1fr'};gap:${isT?16:10}px;padding:${isT?'20px 32px 24px':'12px 14px 14px'};width:100%;box-sizing:border-box">
       ${cat.items.map((m,i)=>`
       <div style="position:relative"><button class="card" onclick="goTo('mdet',{selM:MAT_CATS[${S.matCat}].items[${i}]})" style="width:100%">
-        <div style="height:${isT?100:72}px;background:linear-gradient(135deg,${m.c1},${m.c2});position:relative;overflow:hidden">
-          <div style="position:absolute;bottom:8px;right:10px;width:20px;height:20px;border-radius:3px;background:${m.c1};border:2px solid rgba(255,255,255,.5)"></div>
-        </div>
+        ${(function(){var h=isT?100:72;var bg='background:linear-gradient(135deg,'+m.c1+','+m.c2+')';if(m.photoKey&&typeof PHOTOS_DB!=='undefined'&&PHOTOS_DB[m.photoKey]&&PHOTOS_DB[m.photoKey].length){return '<div style="height:'+h+'px;'+bg+';position:relative;overflow:hidden"><img src="'+PHOTOS_DB[m.photoKey][0]+'" style="width:100%;height:100%;object-fit:cover;display:block"></div>';}return '<div style="height:'+h+'px;'+bg+';position:relative;overflow:hidden"><div style="position:absolute;bottom:8px;right:10px;width:20px;height:20px;border-radius:3px;background:'+m.c1+';border:2px solid rgba(255,255,255,.5)"></div></div>';})()}
         <div style="padding:${isT?'12px 14px 14px':'9px 11px 11px'}">
           <div style="${sf(`font-size:${isT?13:11}px;font-weight:700;color:#1a1a1a;margin-bottom:3px`)}">${esc(m.n)}</div>
           <div style="${sf(`font-size:${isT?11:9}px;color:#6b6b6b;font-weight:300;line-height:1.4;margin-bottom:5px`)}">${esc(m.d.slice(0,isT?55:45))}…</div>
@@ -1186,6 +1176,15 @@ function getScreenHTML(isT) {
     case 'partager': return partagerHTML(isT);
     default: return homeHTML(isT);
   }
+}
+
+function matThumb(m, isT) {
+  var h = isT ? 60 : 48;
+  var bg = 'background:linear-gradient(135deg,' + m.c1 + ',' + m.c2 + ')';
+  if (m.photoKey && typeof PHOTOS_DB !== 'undefined' && PHOTOS_DB[m.photoKey] && PHOTOS_DB[m.photoKey].length) {
+    return '<div style="height:' + h + 'px;overflow:hidden;position:relative;' + bg + '"><img src="' + PHOTOS_DB[m.photoKey][0] + '" style="width:100%;height:100%;object-fit:cover;display:block"></div>';
+  }
+  return '<div style="height:' + h + 'px;' + bg + '"></div>';
 }
 
 function render() {
