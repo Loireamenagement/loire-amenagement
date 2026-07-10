@@ -858,12 +858,20 @@ function matDetailHTML(isT) {
   const m = S.selM;
   if(!m) return '<div></div>';
   return `<div class="${isT?'scr-tablet':'scr'} fi">
-    <div style="background:linear-gradient(155deg,${m.c1},${m.c2});padding:${isT?'40px 40px 48px':'20px 20px 30px'};min-height:${isT?220:160}px;position:relative;overflow:hidden">
-      <button class="back-btn" onclick="goTo('materiaux')">&larr; Retour</button>
-      <div style="position:absolute;bottom:14px;right:18px;display:flex;gap:7px">
-        ${[m.c1,m.c2,'#fff'].map(c=>`<div style="width:${isT?28:22}px;height:${isT?28:22}px;border-radius:4px;background:${c};border:2px solid rgba(255,255,255,.5)"></div>`).join('')}
-      </div>
-    </div>
+    ${(function(){
+      var hasPh=m.photoKey&&typeof PHOTOS_DB!=='undefined'&&PHOTOS_DB[m.photoKey]&&PHOTOS_DB[m.photoKey].length;
+      var ph=hasPh?PHOTOS_DB[m.photoKey][0]:null;
+      var pad=isT?'40px 40px 48px':'20px 20px 30px';
+      var mh=isT?220:160;
+      var sw=isT?28:22;
+      var bg='background:linear-gradient(155deg,'+m.c1+','+m.c2+')';
+      var inner='<button class="back-btn" onclick="goTo(\'materiaux\')">&larr; Retour</button>';
+      if(ph){inner+='<img src="'+ph+'" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;z-index:0;opacity:0.85">';}
+      inner+='<div style="position:absolute;bottom:14px;right:18px;display:flex;gap:7px;z-index:1">';
+      [m.c1,m.c2,'#fff'].forEach(function(c){inner+='<div style="width:'+sw+'px;height:'+sw+'px;border-radius:4px;background:'+c+';border:2px solid rgba(255,255,255,.5)"></div>';});
+      inner+='</div>';
+      return '<div style="'+bg+';padding:'+pad+';min-height:'+mh+'px;position:relative;overflow:hidden">'+inner+'</div>';
+    })()}
     <div style="padding:${isT?'24px 32px 16px':'18px'};background:#fdfcf9;border-bottom:1px solid #e8e0d4">
       <h2 style="${pf(`font-size:${isT?30:24}px;color:#1a1a1a;margin-bottom:8px`)}">${esc(m.n)}</h2>
       <div style="display:flex;flex-wrap:wrap;gap:6px">
