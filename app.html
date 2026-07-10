@@ -764,7 +764,7 @@ function prestationDetailHTML(isT) {
     <div style="display:grid;grid-template-columns:${isT?'1fr 1fr 1fr':'1fr 1fr'};gap:${isT?12:8}px">
       ${matItems.map((m,i)=>`
       <button onclick="goTo('mdet',{selM:MAT_CATS[${matCatIdx}].items[${i}],selMCat:${matCatIdx},selMIdx:${i}})" style="background:#fdfcf9;border:1px solid #e8e0d4;border-radius:10px;overflow:hidden;cursor:pointer;text-align:left;transition:transform .1s" onmouseenter="this.style.transform='translateY(-2px)'" onmouseleave="this.style.transform='none'">
-        <div style="height:${isT?60:48}px;overflow:hidden;position:relative;background:linear-gradient(135deg,${m.c1},${m.c2})">${(m.photoKey&&typeof PHOTOS_DB!=="undefined"&&PHOTOS_DB[m.photoKey]?.length)?`<img src="${PHOTOS_DB[m.photoKey][0]}" style="width:100%;height:100%;object-fit:cover;display:block">`:""}</div>
+        <div style="height:${isT?60:48}px;overflow:hidden;position:relative;background:linear-gradient(135deg,${m.c1},${m.c2})">${(m.photoKey&&typeof PHOTOS_DB!=='undefined'&&PHOTOS_DB[m.photoKey]&&PHOTOS_DB[m.photoKey].length)?'<img src=\''+PHOTOS_DB[m.photoKey][0]+'\' style=\'width:100%;height:100%;object-fit:cover;display:block\'>':''}</div>
         <div style="padding:8px 10px">
           <div style="${sf('font-size:11px;font-weight:700;color:#1a1a1a;margin-bottom:2px')}">${esc(m.n)}</div>
           <div style="${sf('font-size:9px;color:#6b6b6b;font-weight:300')}">${esc(m.use.split('·')[0].trim())}</div>
