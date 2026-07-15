@@ -865,8 +865,10 @@ function matDetailHTML(isT) {
       var mh=isT?220:160;
       var sw=isT?28:22;
       var bg='background:linear-gradient(155deg,'+m.c1+','+m.c2+')';
-      var inner=(ph?\'<img src="\'+ph+\'" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;z-index:0">\':'')+\'<button class="back-btn" onclick="goTo(\\\'materiaux\\\')" style="position:relative;z-index:3">&larr; Retour</button>\';
-      inner+=\'<div style="position:absolute;bottom:14px;right:18px;display:flex;gap:7px;z-index:1">\';
+      var inner='';
+      if(ph){inner='<img src="'+ph+'" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;z-index:0">';}
+      inner+='<button class="back-btn" onclick="goTo(\'materiaux\')" style="position:relative;z-index:3">&larr; Retour</button>';
+      inner+='<div style="position:absolute;bottom:14px;right:18px;display:flex;gap:7px;z-index:1">';
       [m.c1,m.c2,'#fff'].forEach(function(c){inner+='<div style="width:'+sw+'px;height:'+sw+'px;border-radius:4px;background:'+c+';border:2px solid rgba(255,255,255,.5)"></div>';});
       inner+='</div>';
       return '<div style="'+bg+';padding:'+pad+';min-height:'+mh+'px;position:relative;overflow:hidden">'+inner+'</div>';
