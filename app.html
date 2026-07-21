@@ -451,6 +451,76 @@ function showPanierToast(name) {
 
 function isTablet() { return window.innerWidth >= 768; }
 
+// ── LIGHTBOX (plein écran + diaporama) ──────────────────────────────────
+let LB_PHOTOS = [];
+let LB_IDX = 0;
+let LB_TOUCH_X = null;
+
+function openLightbox(photos, idx) {
+  if(!photos || !photos.length) return;
+  LB_PHOTOS = photos;
+  LB_IDX = idx || 0;
+  renderLightbox();
+  document.addEventListener('keydown', lightboxKeyHandler);
+}
+
+function closeLightbox() {
+  const el = document.getElementById('lightbox-overlay');
+  if(el) el.remove();
+  document.removeEventListener('keydown', lightboxKeyHandler);
+}
+
+function lightboxNav(delta, evt) {
+  if(evt) evt.stopPropagation();
+  if(!LB_PHOTOS.length) return;
+  LB_IDX = (LB_IDX + delta + LB_PHOTOS.length) % LB_PHOTOS.length;
+  updateLightboxImage();
+}
+
+function lightboxKeyHandler(e) {
+  if(e.key === 'Escape') closeLightbox();
+  else if(e.key === 'ArrowRight') lightboxNav(1);
+  else if(e.key === 'ArrowLeft') lightboxNav(-1);
+}
+
+function updateLightboxImage() {
+  const img = document.getElementById('lightbox-img');
+  const counter = document.getElementById('lightbox-counter');
+  if(img) img.src = LB_PHOTOS[LB_IDX];
+  if(counter) counter.textContent = (LB_IDX+1) + ' / ' + LB_PHOTOS.length;
+}
+
+function lightboxTouchStart(e) { LB_TOUCH_X = e.touches[0].clientX; }
+function lightboxTouchEnd(e) {
+  if(LB_TOUCH_X===null) return;
+  const dx = e.changedTouches[0].clientX - LB_TOUCH_X;
+  if(dx > 40) lightboxNav(-1);
+  else if(dx < -40) lightboxNav(1);
+  LB_TOUCH_X = null;
+}
+
+function renderLightbox() {
+  let el = document.getElementById('lightbox-overlay');
+  if(!el) {
+    el = document.createElement('div');
+    el.id = 'lightbox-overlay';
+    document.body.appendChild(el);
+  }
+  const multi = LB_PHOTOS.length > 1;
+  el.style.cssText = 'position:fixed;inset:0;background:rgba(10,10,10,.94);z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;animation:fi .15s ease both';
+  el.innerHTML = `
+    <button onclick="closeLightbox()" aria-label="Fermer" style="position:absolute;top:16px;right:16px;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.12);border:none;color:#fff;font-size:22px;line-height:1;cursor:pointer;z-index:2">×</button>
+    ${multi?`<button onclick="lightboxNav(-1,event)" aria-label="Précédent" style="position:absolute;left:6px;top:50%;transform:translateY(-50%);width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.12);border:none;color:#fff;font-size:20px;cursor:pointer;z-index:2">&larr;</button>
+    <button onclick="lightboxNav(1,event)" aria-label="Suivant" style="position:absolute;right:6px;top:50%;transform:translateY(-50%);width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.12);border:none;color:#fff;font-size:20px;cursor:pointer;z-index:2">&rarr;</button>`:''}
+    <img id="lightbox-img" src="${LB_PHOTOS[LB_IDX]}" style="max-width:92vw;max-height:80vh;object-fit:contain;border-radius:6px;touch-action:pan-y;user-select:none" draggable="false" />
+    ${multi?`<div id="lightbox-counter" style="margin-top:16px;color:rgba(255,255,255,.65);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;font-size:12px;letter-spacing:.08em;font-weight:600">${LB_IDX+1} / ${LB_PHOTOS.length}</div>`:''}
+  `;
+  el.onclick = function(e) { if(e.target === el) closeLightbox(); };
+  const imgEl = document.getElementById('lightbox-img');
+  imgEl.addEventListener('touchstart', lightboxTouchStart, {passive:true});
+  imgEl.addEventListener('touchend', lightboxTouchEnd, {passive:true});
+}
+
 // ── HELPERS ────────────────────────────────────────────────────────────
 function pf(style) { return `font-family:Georgia,'Times New Roman',serif;${style}`; }
 function sf(style) { return `font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;${style}`; }
@@ -721,6 +791,7 @@ function prestationDetailHTML(isT) {
   if(!p) return '<div></div>';
   // Resolve photos from external PHOTOS_DB or inline
   const pPhotos = (typeof PHOTOS_DB!=="undefined"&&PHOTOS_DB[p.id]&&PHOTOS_DB[p.id].length) ? PHOTOS_DB[p.id] : (p.photos||[]);
+  window.__galleryPhotos = pPhotos; // référence pour la visionneuse plein écran
   const vedettes = VEDETTES.filter(v=>v.prestation===p.id);
   const matCatIdx = PRESTA_MAT_MAP[p.id];
   const matItems = matCatIdx !== undefined ? MAT_CATS[matCatIdx].items : [];
@@ -728,8 +799,9 @@ function prestationDetailHTML(isT) {
 
   // Photo placeholder
   const photoHTML = pPhotos && pPhotos.length
-    ? `<div style="height:${isT?240:180}px;overflow:hidden;position:relative">
+    ? `<div onclick="openLightbox(window.__galleryPhotos,0)" style="height:${isT?240:180}px;overflow:hidden;position:relative;cursor:pointer">
         <img src="${pPhotos[0]}" style="width:100%;height:100%;object-fit:cover" />
+        <div style="position:absolute;bottom:10px;right:10px;width:30px;height:30px;border-radius:50%;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px">⛶</div>
       </div>`
     : `<div style="height:${isT?240:180}px;background:linear-gradient(145deg,${p.col}cc,${p.col}88);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px">
         <div style="color:rgba(255,255,255,.25);width:${isT?80:60}px;height:${isT?80:60}px">${ICONS[p.id]||''}</div>
@@ -787,8 +859,9 @@ function prestationDetailHTML(isT) {
   </button>`;
   if(S.pTab==='galerie' && pPhotos && pPhotos.length) {
     tabContent = `<div style="display:grid;grid-template-columns:${isT?'1fr 1fr':'1fr'};gap:10px;padding-bottom:8px">
-      ${pPhotos.map(ph=>`<div style="border-radius:10px;overflow:hidden;aspect-ratio:4/3">
+      ${pPhotos.map((ph,i)=>`<div onclick="openLightbox(window.__galleryPhotos,${i})" style="border-radius:10px;overflow:hidden;aspect-ratio:4/3;cursor:pointer;position:relative">
         <img src="${ph}" style="width:100%;height:100%;object-fit:cover" />
+        <div style="position:absolute;bottom:8px;right:8px;width:26px;height:26px;border-radius:50%;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px">⛶</div>
       </div>`).join('')}
     </div>`;
   }
@@ -861,13 +934,16 @@ function matDetailHTML(isT) {
   return `<div class="${isT?'scr-tablet':'scr'} fi">
     ${(function(){
       var hasPh=m.photoKey&&typeof PHOTOS_DB!=='undefined'&&PHOTOS_DB[m.photoKey]&&PHOTOS_DB[m.photoKey].length;
-      var ph=hasPh?PHOTOS_DB[m.photoKey][0]:null;
+      var mPhotos=hasPh?PHOTOS_DB[m.photoKey]:[];
+      window.__galleryPhotos=mPhotos;
+      var ph=hasPh?mPhotos[0]:null;
       var pad=isT?'40px 40px 48px':'20px 20px 30px';
       var mh=isT?220:160;
       var sw=isT?28:22;
       var bg='background:linear-gradient(155deg,'+m.c1+','+m.c2+')';
       var inner='';
-      if(ph){inner='<img src="'+ph+'" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;z-index:0">';}
+      if(ph){inner='<img src="'+ph+'" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;z-index:0;cursor:pointer" onclick="openLightbox(window.__galleryPhotos,0)">';
+        inner+='<div onclick="openLightbox(window.__galleryPhotos,0)" style="position:absolute;bottom:14px;left:18px;width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px;cursor:pointer;z-index:1">⛶</div>';}
       inner+='<button class="back-btn" onclick="goTo(\'materiaux\')" style="position:relative;z-index:3">&larr; Retour</button>';
       inner+='<div style="position:absolute;bottom:14px;right:18px;display:flex;gap:7px;z-index:1">';
       [m.c1,m.c2,'#fff'].forEach(function(c){inner+='<div style="width:'+sw+'px;height:'+sw+'px;border-radius:4px;background:'+c+';border:2px solid rgba(255,255,255,.5)"></div>';});
