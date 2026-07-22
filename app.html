@@ -933,11 +933,11 @@ function materiauxHTML(isT) {
 function matDetailHTML(isT) {
   const m = S.selM;
   if(!m) return '<div></div>';
+  const hasPh = m.photoKey && typeof PHOTOS_DB!=='undefined' && PHOTOS_DB[m.photoKey] && PHOTOS_DB[m.photoKey].length;
+  const mPhotos = hasPh ? PHOTOS_DB[m.photoKey] : [];
+  window.__galleryPhotos = mPhotos;
   return `<div class="${isT?'scr-tablet':'scr'} fi">
     ${(function(){
-      var hasPh=m.photoKey&&typeof PHOTOS_DB!=='undefined'&&PHOTOS_DB[m.photoKey]&&PHOTOS_DB[m.photoKey].length;
-      var mPhotos=hasPh?PHOTOS_DB[m.photoKey]:[];
-      window.__galleryPhotos=mPhotos;
       var ph=hasPh?mPhotos[0]:null;
       var pad=isT?'40px 40px 48px':'20px 20px 30px';
       var mh=isT?220:160;
@@ -952,6 +952,11 @@ function matDetailHTML(isT) {
       inner+='</div>';
       return '<div style="'+bg+';padding:'+pad+';min-height:'+mh+'px;position:relative;overflow:hidden">'+inner+'</div>';
     })()}
+    ${mPhotos.length>1?`<div style="display:flex;gap:8px;padding:${isT?'14px 32px':'12px 18px'};background:#fdfcf9;overflow-x:auto">
+      ${mPhotos.map((ph,i)=>`<div onclick="openLightbox(window.__galleryPhotos,${i})" style="flex-shrink:0;width:${isT?72:58}px;height:${isT?72:58}px;border-radius:8px;overflow:hidden;cursor:pointer;border:2px solid ${i===0?m.c1:'transparent'}">
+        <img src="${ph}" style="width:100%;height:100%;object-fit:cover" />
+      </div>`).join('')}
+    </div>`:''}
     <div style="padding:${isT?'24px 32px 16px':'18px'};background:#fdfcf9;border-bottom:1px solid #e8e0d4">
       <h2 style="${pf(`font-size:${isT?30:24}px;color:#1a1a1a;margin-bottom:8px`)}">${esc(m.n)}</h2>
       <div style="display:flex;flex-wrap:wrap;gap:6px">
