@@ -228,6 +228,11 @@ const VEDETTES = [
     args:["0 entretien sur 25 ans garantis","Hauteurs de 1,00 à 2,00 m","Coloris gris, brun, anthracite, beige","Compatible portail motorisé assorti"],
     mats:["Lames composite 15x120","Poteaux aluminium 80x80","Visserie inox A2"],
     pourquoi:"La clôture qui modernise instantanément une propriété tout en la préservant."},
+  {id:"v6b", nom:"Clôture Panneaux Rigides MRT", prestation:"clotures", badge:"Rapport qualité/prix", prix:"€€", prixDetail:"Dès 80 €/ml posé", col:"#4a4a4a", bg:"#e8e8e8", photoKey:"panneauxRigidesMRT",
+    accroche:"La solution robuste et économique par excellence. Panneaux à mailles soudées sur poteaux acier, avec ou sans occultation (lattes bois, PVC ou composite) selon vos besoins d'intimité.",
+    args:["Excellent rapport qualité/prix, pose rapide","Occultation totale ou partielle au choix","Poteaux acier galvanisé thermolaqué, très grande longévité","S'adapte à tous les terrains, y compris en pente"],
+    mats:["Panneaux rigides à mailles soudées MRT","Poteaux acier galvanisé thermolaqué","Occultation lattes bois, PVC ou composite en option"],
+    pourquoi:"Notre clôture la plus posée : solide, sans entretien lourd, et modulable en occultation selon le budget du client."},
   {id:"v7", nom:"Gazon en Rouleau Premium", prestation:"engazonnement", badge:"Résultat immédiat", prix:"€€", prixDetail:"Dès 25 €/m² posé", col:"#4a7c28", bg:"#e0edd0",
     accroche:"Un gazon parfait le jour même de la pose. Variétés sélectionnées pour la résistance à la sécheresse et au piétinement.",
     args:["Pelouse utilisable en 3 semaines","Densité uniforme sans zones claires","Choix selon usage : sport, ornement, ombre","Reprise garantie avec notre protocole d'arrosage"],
@@ -699,6 +704,19 @@ function vedetteDetailHTML(isT) {
   const v = S.selV;
   if(!v) return '<div></div>';
   const prest = PRESTATIONS.find(p=>p.id===v.prestation);
+  const vPhotos = (v.photoKey && typeof PHOTOS_DB!=='undefined' && PHOTOS_DB[v.photoKey] && PHOTOS_DB[v.photoKey].length) ? PHOTOS_DB[v.photoKey] : [];
+  window.__galleryPhotos = vPhotos;
+  const photoBlockHTML = vPhotos.length ? `<div style="margin-bottom:18px">
+    <div onclick="openLightbox(window.__galleryPhotos,0)" style="border-radius:12px;overflow:hidden;position:relative;cursor:pointer;aspect-ratio:16/9">
+      <img src="${vPhotos[0]}" style="width:100%;height:100%;object-fit:cover" />
+      <div style="position:absolute;bottom:10px;right:10px;width:30px;height:30px;border-radius:50%;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px">⛶</div>
+    </div>
+    ${vPhotos.length>1?`<div style="display:flex;gap:8px;margin-top:8px;overflow-x:auto">
+      ${vPhotos.map((ph,i)=>`<div onclick="openLightbox(window.__galleryPhotos,${i})" style="flex-shrink:0;width:64px;height:64px;border-radius:8px;overflow:hidden;cursor:pointer;border:2px solid ${i===0?v.col:'transparent'}">
+        <img src="${ph}" style="width:100%;height:100%;object-fit:cover" />
+      </div>`).join('')}
+    </div>`:''}
+  </div>` : '';
   const headerHTML = `
     <div style="background:${v.col};padding:${isT?'32px 32px 28px':'20px 20px 28px'};position:relative;overflow:hidden;${isT?'height:100%;display:flex;flex-direction:column;justify-content:flex-end':''}">
       <div style="position:absolute;right:-30px;bottom:-30px;width:160px;height:160px;border-radius:50%;background:rgba(255,255,255,.06)"></div>
@@ -716,6 +734,7 @@ function vedetteDetailHTML(isT) {
     </div>`;
 
   const contentHTML = `<div style="padding:${isT?'24px 28px':'16px'};${isT?'overflow-y:auto':''}">
+    ${photoBlockHTML}
     <div style="${sf('font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:'+v.col+';font-weight:700;margin-bottom:12px')}">Points forts</div>
     ${v.args.map(a=>`
     <div style="display:flex;gap:12px;margin-bottom:14px;align-items:flex-start">
