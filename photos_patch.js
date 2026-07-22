@@ -13,4 +13,5 @@ if(typeof PHOTOS_DB !== "undefined") {
   PHOTOS_DB["claireVoieBois"] = ["photos/materiaux/claireVoieBois-1.jpg"];
   PHOTOS_DB["compositeTraumgarten"] = ["photos/materiaux/compositeTraumgarten-1.jpg"];
   PHOTOS_DB["boisPinTerrasse"] = ["photos/materiaux/boisPinTerrasse-1.jpg"];
+  PHOTOS_DB["panneauxRigidesMRT"] = ["photos/materiaux/panneauxRigidesMRT-1.jpg", "photos/materiaux/panneauxRigidesMRT-2.jpg", "photos/materiaux/panneauxRigidesMRT-3.jpg", "photos/materiaux/panneauxRigidesMRT-4.jpg", "photos/materiaux/panneauxRigidesMRT-5.jpg"];
 }
