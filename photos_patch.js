@@ -11,7 +11,7 @@ if(typeof PHOTOS_DB !== "undefined") {
   PHOTOS_DB["terrassePavage"] = ["photos/materiaux/terrassePavage-1.jpg"];
   PHOTOS_DB["clotureLamesBois"] = ["photos/materiaux/clotureLamesBois-1.jpg"];
   PHOTOS_DB["claireVoieBois"] = ["photos/materiaux/claireVoieBois-1.jpg"];
-  PHOTOS_DB["compositeTraumgarten"] = ["photos/materiaux/compositeTraumgarten-1.jpg", "photos/materiaux/compositeTraumgarten-2.jpg", "photos/materiaux/compositeTraumgarten-3.jpg", "photos/materiaux/compositeTraumgarten-4.jpg", "photos/materiaux/compositeTraumgarten-5.jpg", "photos/materiaux/compositeTraumgarten-6.jpg", "photos/materiaux/compositeTraumgarten-7.jpg", "photos/materiaux/compositeTraumgarten-8.jpg", "photos/materiaux/compositeTraumgarten-9.jpg"];
+  PHOTOS_DB["compositeTraumgarten"] = ["photos/materiaux/compositeTraumgarten-1.jpg", "photos/materiaux/compositeTraumgarten-2.jpeg", "photos/materiaux/compositeTraumgarten-3.jpeg", "photos/materiaux/compositeTraumgarten-4.jpeg", "photos/materiaux/compositeTraumgarten-5.jpeg", "photos/materiaux/compositeTraumgarten-6.jpeg", "photos/materiaux/compositeTraumgarten-7.jpeg", "photos/materiaux/compositeTraumgarten-8.jpeg", "photos/materiaux/compositeTraumgarten-9.jpeg"];
   PHOTOS_DB["boisPinTerrasse"] = ["photos/materiaux/boisPinTerrasse-1.jpg"];
   PHOTOS_DB["panneauxRigidesMRT"] = ["photos/materiaux/panneauxRigidesMRT-1.jpg", "photos/materiaux/panneauxRigidesMRT-2.jpg", "photos/materiaux/panneauxRigidesMRT-3.jpg", "photos/materiaux/panneauxRigidesMRT-4.jpg", "photos/materiaux/panneauxRigidesMRT-5.jpg"];
   PHOTOS_DB["pergolaAluminium"] = ["photos/materiaux/pergola-aluminium-1.jpeg", "photos/materiaux/pergola-aluminium-2.jpeg", "photos/materiaux/pergola-aluminium-3.jpeg"];
