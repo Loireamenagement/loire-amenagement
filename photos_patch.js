@@ -1,7 +1,7 @@
 // Photos matériaux — patch (v2 : fichiers hébergés, plus de base64)
 // Les images vivent dans le dossier /photos/materiaux/ du repo, à côté de app.html
 if(typeof PHOTOS_DB !== "undefined") {
-  PHOTOS_DB["enrobesBitumineux"] = ["photos/materiaux/enrobesBitumineux-1.jpg", "photos/realisations/enrobes-bitumineux-1.jpeg", "photos/realisations/enrobes-bitumineux-2.jpg"];
+  PHOTOS_DB["enrobesBitumineux"] = ["photos/materiaux/enrobesBitumineux-1.jpg", "photos/realisations/enrobes-bitumineux-1.jpeg", "photos/realisations/enrobes-bitumineux-2.jpg", "photos/realisations/enrobes-bitumineux-3.jpg"];
   PHOTOS_DB["pavageDallage"] = ["photos/materiaux/pavageDallage-1.jpg", "photos/materiaux/pavageDallage-2.jpg"];
   PHOTOS_DB["resineMarbre"] = ["photos/materiaux/resineMarbre-1.jpg"];
   PHOTOS_DB["gravierBicouche"] = ["photos/materiaux/gravierBicouche-1.jpg"];
