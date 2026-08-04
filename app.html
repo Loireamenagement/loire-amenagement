@@ -411,6 +411,9 @@ const S = {
   shareSel: [],
   vFilter: 'Tous',
   pFilter: 'Tous',
+  clientNom: '',
+  clientEmail: '',
+  clientMsg: null,
 };
 
 function goTo(screen, extra={}) {
@@ -1079,6 +1082,23 @@ function chantierDetailHTML(isT) {
 }
 
 // ── PARTAGER ───────────────────────────────────────────────────────────
+function defaultAccompMsg() {
+  const nom = (S.clientNom||'').trim();
+  const salutation = nom ? `Bonjour ${nom},` : 'Bonjour,';
+  const types = new Set(S.panier.map(x=>x.type));
+  let objet;
+  if(types.size===1 && types.has('Matériau')) objet = 'les matériaux que nous avons évoqués ensemble';
+  else if(types.size===1 && types.has('Prestation')) objet = 'les prestations qui ont retenu votre attention';
+  else if(types.size===1 && types.has('Vedette')) objet = 'les réalisations qui vous ont plu';
+  else if(types.size===1 && types.has('Document')) objet = 'la documentation demandée';
+  else objet = 'les éléments de votre projet que nous avons évoqués';
+  return `${salutation}\n\nSuite à notre échange, voici ${objet}.\nVous trouverez le récapitulatif détaillé ci-dessous.\n\nN'hésitez pas à me contacter pour toute question complémentaire.`;
+}
+function regenererMsg() {
+  S.clientMsg = defaultAccompMsg();
+  const ta = document.getElementById('client-msg');
+  if(ta) ta.value = S.clientMsg;
+}
 function partagerHTML(isT) {
   const n = S.panier.length;
   return `<div class="${isT?'scr-tablet':'scr'} fi" style="padding-bottom:${isT?40:80}px">
@@ -1114,13 +1134,15 @@ function partagerHTML(isT) {
       <div style="${isT?'':'margin-top:20px'}">
         <div style="${sf('font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:#8b5e3c;font-weight:700;margin-bottom:10px')}">Envoyer au client</div>
         <div style="background:#fdfcf9;border-radius:12px;padding:16px;border:1px solid #e8e0d4">
-          <div style="${sf('font-size:11px;font-weight:600;color:#1a1a1a;margin-bottom:6px')}">Email du client</div>
           <div style="${sf('font-size:11px;font-weight:600;color:#1a1a1a;margin-bottom:6px')}">Nom du client</div>
-          <input id="client-nom" type="text" placeholder="Jean Dupont" style="width:100%;border:1px solid #e8e0d4;border-radius:8px;padding:10px 12px;font-size:13px;font-family:'DM Sans',sans-serif;margin-bottom:12px;background:#f5f0e8;color:#1a1a1a;outline:none"/>
+          <input id="client-nom" type="text" placeholder="Jean Dupont" value="${esc(S.clientNom)}" oninput="S.clientNom=this.value" style="width:100%;border:1px solid #e8e0d4;border-radius:8px;padding:10px 12px;font-size:13px;font-family:'DM Sans',sans-serif;margin-bottom:12px;background:#f5f0e8;color:#1a1a1a;outline:none"/>
           <div style="${sf('font-size:11px;font-weight:600;color:#1a1a1a;margin-bottom:6px')}">Email du client</div>
-          <input id="client-email" type="email" placeholder="client@exemple.fr" style="width:100%;border:1px solid #e8e0d4;border-radius:8px;padding:10px 12px;font-size:13px;font-family:'DM Sans',sans-serif;margin-bottom:14px;background:#f5f0e8;color:#1a1a1a;outline:none"/>
-          <div style="${sf('font-size:11px;font-weight:600;color:#1a1a1a;margin-bottom:6px')}">Message d'accompagnement</div>
-          <textarea id="client-msg" rows="4" placeholder="Bonjour, suite à notre rendez-vous, veuillez trouver ci-joint les éléments dont nous avons discuté..." style="width:100%;border:1px solid #e8e0d4;border-radius:8px;padding:10px 12px;font-size:13px;font-family:'DM Sans',sans-serif;background:#f5f0e8;color:#1a1a1a;outline:none;resize:vertical"></textarea>
+          <input id="client-email" type="email" placeholder="client@exemple.fr" value="${esc(S.clientEmail)}" oninput="S.clientEmail=this.value" style="width:100%;border:1px solid #e8e0d4;border-radius:8px;padding:10px 12px;font-size:13px;font-family:'DM Sans',sans-serif;margin-bottom:14px;background:#f5f0e8;color:#1a1a1a;outline:none"/>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+            <div style="${sf('font-size:11px;font-weight:600;color:#1a1a1a')}">Message d'accompagnement</div>
+            <button onclick="regenererMsg()" style="background:none;border:none;cursor:pointer;font-size:10px;color:#0040A0;font-family:'DM Sans',sans-serif;text-decoration:underline">↻ Régénérer selon le panier</button>
+          </div>
+          <textarea id="client-msg" rows="5" oninput="S.clientMsg=this.value" style="width:100%;border:1px solid #e8e0d4;border-radius:8px;padding:10px 12px;font-size:13px;font-family:'DM Sans',sans-serif;background:#f5f0e8;color:#1a1a1a;outline:none;resize:vertical">${esc(S.clientMsg!==null?S.clientMsg:defaultAccompMsg())}</textarea>
           <button onclick="genererLienRecap()" style="width:100%;margin-top:12px;background:${n>0?'#0040A0':'#d0ccc4'};border:none;border-radius:10px;padding:14px;font-size:13px;font-weight:700;color:#fff;cursor:${n>0?'pointer':'default'};font-family:'DM Sans',sans-serif">
             ${n>0?'🔗 Générer le lien récap client':'Ajoutez des éléments au panier'}
           </button>
