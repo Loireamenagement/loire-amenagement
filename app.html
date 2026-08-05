@@ -1339,6 +1339,8 @@ function matThumb(m, isT) {
 function render() {
   const isT = isTablet();
   const app = document.getElementById('app');
+  const prevScr = document.querySelector('.scr,.scr-tablet');
+  const prevScrollTop = prevScr ? prevScr.scrollTop : 0;
   if(isT) {
     app.className = 'app-tablet';
     app.innerHTML = sidebarHTML() + getScreenHTML(true);
@@ -1346,6 +1348,8 @@ function render() {
     app.className = 'app-phone';
     app.innerHTML = getScreenHTML(false) + bottomNavHTML();
   }
+  const newScr = document.querySelector('.scr,.scr-tablet');
+  if(newScr) newScr.scrollTop = prevScrollTop;
 }
 window.addEventListener('resize', ()=>{ render(); });
 window.addEventListener('DOMContentLoaded', function() { if(!checkRecapHash()) render(); });
