@@ -369,7 +369,7 @@ const PRESTA_MAT_MAP = {
 
 
 const GALERIE = [
-  {id:1, cat:"terrasses", titre:"Terrasse grès cérame", detail:"180 m²", lieu:"Résidence privée", col:"#e4edd8", col2:"#2d5016", fiche:true, mats:["Grès cérame 60x120","Plots réglables"], desc:"Grande terrasse de plain-pied avec jonction gazon. Pose sur plots pour drainage naturel."},
+  {id:1, cat:"terrasses", titre:"Terrasse grès cérame", detail:"180 m²", lieu:"Résidence privée", col:"#e4edd8", col2:"#2d5016", fiche:true, mats:["Grès cérame 60x120","Plots réglables"], desc:"Grande terrasse de plain-pied avec jonction gazon. Pose sur plots pour drainage naturel.", matKeys:["terrassteel"]},
   {id:2, cat:"allees", titre:"Allée calcaire naturel", detail:"45 ml", lieu:"Propriété 2 500 m²", col:"#f0e4d8", col2:"#8b5e3c", fiche:false},
   {id:3, cat:"jardins", titre:"Jardin méditerranéen", detail:"800 m²", lieu:"Villa avec piscine", col:"#e4f0d8", col2:"#4a7c28", fiche:true, mats:["Olivier multi-troncs","Lavandes","Graminées","Gravier de paillage"], desc:"Aménagement complet avec plan végétal, arrosage automatique et éclairage basse tension."},
   {id:4, cat:"clotures", titre:"Clôture composite", detail:"120 ml", lieu:"Lotissement neuf", col:"#ede6df", col2:"#5a3e2b", fiche:false},
@@ -382,6 +382,11 @@ const GALERIE = [
   {id:11, cat:"jardins", titre:"Massifs vivaces", detail:"Résidence 1 200 m²", lieu:"Particulier", col:"#e4f0d8", col2:"#3d6b22", fiche:false},
   {id:12, cat:"maconnerie", titre:"Muret pierre sèche", detail:"28 ml", lieu:"Jardin en pente", col:"#ede4dc", col2:"#7a6050", fiche:true, mats:["Pierre de pays calcaire","Mortier de chaux"], desc:"Muret de soutènement en pierre sèche locale. Intégration de plantes grimpantes."},
 ];
+
+function galPhotos(g) {
+  if(!g || !g.matKeys || typeof PHOTOS_DB === 'undefined') return [];
+  return g.matKeys.reduce((acc,k)=>acc.concat(PHOTOS_DB[k]||[]), []);
+}
 
 const ICONS = {
   allees: `<svg viewBox="0 0 40 40" fill="none"><path d="M20 4L28 36H12Z" fill="currentColor" opacity=".12"/><line x1="20" y1="4" x2="28" y2="36" stroke="currentColor" stroke-width="1.5"/><line x1="20" y1="4" x2="12" y2="36" stroke="currentColor" stroke-width="1.5"/><line x1="14" y1="20" x2="26" y2="20" stroke="currentColor" stroke-width="1" opacity=".5"/><line x1="13" y1="28" x2="27" y2="28" stroke="currentColor" stroke-width="1" opacity=".5"/></svg>`,
@@ -1029,10 +1034,12 @@ function galerieHTML(isT) {
       ${liste.map((g,i)=>{
         const pr = PRESTATIONS.find(p=>p.id===g.cat);
         const isClickable = g.fiche;
+        const gPhotos = galPhotos(g);
         return `<button class="card" ${isClickable?`onclick="goTo('cdet',{selC:GALERIE.find(x=>x.id===${g.id})})"`:''} style="cursor:${isClickable?'pointer':'default'}">
           <div style="height:${isT?160:i%3===0?110:80}px;background:linear-gradient(140deg,${g.col},${g.col2||'#888'}20);position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;padding:10px">
-            <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:.1;color:${g.col2||'#888'};width:100%;height:100%">${ICONS[g.cat]||''}</div>
-            <div style="display:flex;justify-content:space-between;align-items:flex-end">
+            ${gPhotos.length?`<img src="${gPhotos[0]}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0">
+            <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0) 45%,rgba(0,0,0,.55) 100%);z-index:0"></div>`:`<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:.1;color:${g.col2||'#888'};width:100%;height:100%">${ICONS[g.cat]||''}</div>`}
+            <div style="position:relative;z-index:1;display:flex;justify-content:space-between;align-items:flex-end">
               <span class="chip" style="background:rgba(255,255,255,.22);color:#fff;font-size:9px">${esc(pr?.cat||'')}</span>
               ${isClickable?'<span style="background:rgba(255,255,255,.22);color:#fff;font-size:9px;padding:3px 7px;border-radius:4px;font-weight:600;font-family:\'DM Sans\',sans-serif">Fiche &rarr;</span>':''}
             </div>
@@ -1054,6 +1061,8 @@ function chantierDetailHTML(isT) {
   const g = S.selC;
   if(!g) return '<div></div>';
   const pr = PRESTATIONS.find(p=>p.id===g.cat);
+  const gPhotos = galPhotos(g);
+  window.__galleryPhotos = gPhotos;
   return `<div class="${isT?'scr-tablet':'scr'} fi">
     <div style="background:${g.col2||'#0040A0'};padding:${isT?'32px 40px 28px':'20px 20px 28px'};position:relative;overflow:hidden;min-height:${isT?180:160}px">
       <button class="back-btn" onclick="goTo('galerie')">&larr; Réalisations</button>
@@ -1063,14 +1072,24 @@ function chantierDetailHTML(isT) {
         <p style="${sf(`font-size:${isT?13:11}px;color:rgba(255,255,255,.7);font-weight:300`)}">${esc(g.detail)} · ${esc(g.lieu)}</p>
       </div>
     </div>
-    <div style="display:grid;grid-template-columns:${isT?'2fr 1fr 1fr':'2fr 1fr'};gap:8px;padding:${isT?'20px 32px 8px':'14px 14px 6px'}">
+    ${gPhotos.length?`<div style="padding:${isT?'20px 32px 8px':'14px 14px 6px'}">
+      <div onclick="openLightbox(window.__galleryPhotos,0)" style="height:${isT?260:180}px;border-radius:12px;overflow:hidden;position:relative;cursor:pointer">
+        <img src="${gPhotos[0]}" style="width:100%;height:100%;object-fit:cover;display:block">
+        <div style="position:absolute;bottom:10px;right:12px;width:30px;height:30px;border-radius:50%;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px">⛶</div>
+      </div>
+      ${gPhotos.length>1?`<div style="display:flex;gap:8px;margin-top:8px;overflow-x:auto">
+        ${gPhotos.map((ph,i)=>`<div onclick="openLightbox(window.__galleryPhotos,${i})" style="flex-shrink:0;width:${isT?72:58}px;height:${isT?72:58}px;border-radius:8px;overflow:hidden;cursor:pointer;border:2px solid ${i===0?(g.col2||'#0040A0'):'transparent'}">
+          <img src="${ph}" style="width:100%;height:100%;object-fit:cover">
+        </div>`).join('')}
+      </div>`:''}
+    </div>`:`<div style="display:grid;grid-template-columns:${isT?'2fr 1fr 1fr':'2fr 1fr'};gap:8px;padding:${isT?'20px 32px 8px':'14px 14px 6px'}">
       <div style="height:${isT?200:140}px;background:linear-gradient(145deg,${g.col},${g.col2||'#888'}20);border-radius:12px;display:flex;align-items:center;justify-content:center;${isT?'grid-row:span 2':''}">
         <span style="${sf('color:rgba(255,255,255,.4);font-size:12px;font-weight:300')}">Photo 1</span>
       </div>
       ${[2,3,isT?4:0].filter(Boolean).map(n=>`<div style="height:${isT?96:66}px;background:${n%2===0?g.col+'40':'#e8e0d4'};border-radius:10px;display:flex;align-items:center;justify-content:center">
         <span style="${sf('color:#6b6b6b;font-size:11px')}">${n}</span>
       </div>`).join('')}
-    </div>
+    </div>`}
     <div style="padding:${isT?'16px 32px 24px':'14px 16px'}">
       ${g.desc?`<p style="${sf(`font-size:${isT?14:13}px;color:#6b6b6b;line-height:1.65;font-weight:300;margin-bottom:16px`)}">${esc(g.desc)}</p>`:''}
       ${g.mats?`<div style="display:flex;flex-wrap:wrap;gap:8px">
@@ -1351,7 +1370,14 @@ function render() {
   const newScr = document.querySelector('.scr,.scr-tablet');
   if(newScr) newScr.scrollTop = prevScrollTop;
 }
-window.addEventListener('resize', ()=>{ render(); });
+let _wasTablet = isTablet();
+window.addEventListener('resize', ()=>{
+  const nowTablet = isTablet();
+  if(nowTablet !== _wasTablet) {
+    _wasTablet = nowTablet;
+    render();
+  }
+});
 window.addEventListener('DOMContentLoaded', function() { if(!checkRecapHash()) render(); });
 
 </script>
