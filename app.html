@@ -66,7 +66,7 @@ const C = {
 };
 
 const PRESTATIONS = [
-  {id:"allees", nom:"Allées et Cours", cat:"Aménagement", col:"#8b5e3c", bg:"#f0e4d8",
+  {id:"allees", nom:"Allées et Cours", cat:"Aménagement", col:"#8b5e3c", bg:"#f0e4d8", photoKey:"enrobesBitumineux",
     accroche:"Enrobé, dallage, résine de marbre, béton désactivé, sable stabilisé ou pas japonais : nous créons des allées durables et esthétiques adaptées à chaque budget et chaque style.",
     services:[
       {n:"Allée en enrobés", d:"Enrobé bitumineux chaud. Finition lisse et durable, idéale pour entrées de garage et allées carrossables. Plusieurs choix de couleur."},
@@ -80,7 +80,7 @@ const PRESTATIONS = [
     etapes:["Visite & devis gratuit","Implantation contradictoire","Terrassements généraux & fondations","Bordurage","Réglages des formes de pentes","Mise en oeuvre du revêtement","Nettoyage & repliement"],
     phrase:"L'allée, premier pas vers votre jardin.",
     photos:[]},
-  {id:"terrasses", nom:"Terrasses", cat:"Aménagement", col:"#2d5016", bg:"#e4edd8",
+  {id:"terrasses", nom:"Terrasses", cat:"Aménagement", col:"#2d5016", bg:"#e4edd8", photoKey:"terrassteel",
     accroche:"Grès cérame sur plots, composite Trex, bois naturel, pierre, résine de marbre ou gazon synthétique : nous concevons votre espace de vie extérieur sur mesure.",
     services:[
       {n:"Grès cérame sur plots", d:"Tous formats. Accès sous-terrasse préservé. Résistance gel certifiée R11."},
@@ -95,7 +95,7 @@ const PRESTATIONS = [
     etapes:["Visite & devis gratuit","Conseil et choix des matériaux","Installation de la structure et pose du revêtement","Joints, évacuations EP, nettoyage & repliement"],
     phrase:"Votre jardin, votre salon à ciel ouvert.",
     photos:[]},
-  {id:"clotures", nom:"Clôtures & Portails", cat:"Délimitation", col:"#5a3e2b", bg:"#ede6df",
+  {id:"clotures", nom:"Clôtures & Portails", cat:"Délimitation", col:"#5a3e2b", bg:"#ede6df", photoKey:"panneauxRigidesMRT",
     accroche:"Panneaux rigides, composite, aluminium thermolaqué, bois, gabions ou brande de bruyère : des clôtures pour tous les goûts et tous les budgets, avec portail assorti.",
     services:[
       {n:"Panneaux rigides MRT", d:"Avec ou sans occultation. Robuste et économique. Marque MRT."},
@@ -163,7 +163,7 @@ const PRESTATIONS = [
     etapes:["Terrassement & nivellement","Amendement & préparation du sol","Pose du gazon en rouleau ou semis","Arrosage de reprise & suivi de levée"],
     phrase:"De la graine à la pelouse parfaite.",
     photos:[]},
-  {id:"structures", nom:"Pergolas, Carports & Abris", cat:"Structure", col:"#6b4c2a", bg:"#f0e4d8",
+  {id:"structures", nom:"Pergolas, Carports & Abris", cat:"Structure", col:"#6b4c2a", bg:"#f0e4d8", photoKey:"pergolaAluminium",
     accroche:"Pergola bois ou aluminium, store et vélum, carport sur mesure, bardage, voile d'ombrage Espace Ombrage : créez des espaces couverts qui prolongent votre maison.",
     services:[
       {n:"Pergola bois & aluminium", d:"Structure ouverte, couverture vélum, voile austral 340, vitrages, bardages."},
@@ -393,6 +393,13 @@ const GALERIE = [
 function galPhotos(g) {
   if(!g || !g.matKeys || typeof PHOTOS_DB === 'undefined') return [];
   return g.matKeys.reduce((acc,k)=>acc.concat(PHOTOS_DB[k]||[]), []);
+}
+
+function prestaPhotos(p) {
+  if(typeof PHOTOS_DB === 'undefined') return p.photos||[];
+  if(PHOTOS_DB[p.id] && PHOTOS_DB[p.id].length) return PHOTOS_DB[p.id];
+  if(p.photoKey && PHOTOS_DB[p.photoKey] && PHOTOS_DB[p.photoKey].length) return PHOTOS_DB[p.photoKey];
+  return p.photos||[];
 }
 
 const ICONS = {
@@ -799,16 +806,27 @@ function prestationsHTML(isT) {
       ${cats.map(c=>`<button class="pill" onclick="S.pFilter='${c}';render()" style="background:${S.pFilter===c?'#0040A0':'#fdfcf9'};color:${S.pFilter===c?'#fff':'#6b6b6b'};border:1px solid ${S.pFilter===c?'#0040A0':'#e8e0d4'}">${esc(c)}</button>`).join('')}
     </div>
     <div style="display:grid;grid-template-columns:${isT?'1fr 1fr 1fr':'1fr 1fr'};gap:${isT?16:10}px;padding:${isT?'20px 32px 24px':'12px 14px 14px'};width:100%;box-sizing:border-box;width:100%;box-sizing:border-box">
-      ${liste.map(p=>`
+      ${liste.map(p=>{
+        const pPhotos = prestaPhotos(p);
+        return `
       <div style="position:relative">
         <button class="card" onclick="goTo('pdet',{selP:PRESTATIONS.find(x=>x.id==='${p.id}'),pTab:'presentation'})" style="width:100%">
+          ${pPhotos.length ? `
+          <div style="height:${isT?110:88}px;position:relative;overflow:hidden">
+            <img src="${pPhotos[0]}" style="width:100%;height:100%;object-fit:cover;display:block">
+            <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0) 55%,rgba(0,0,0,.5) 100%)"></div>
+            <span class="chip" style="position:absolute;bottom:8px;left:8px;background:rgba(255,255,255,.22);color:#fff;font-size:9px;text-transform:uppercase;letter-spacing:.07em">${esc(p.cat)}</span>
+          </div>
+          <div style="padding:${isT?'12px 16px 4px':'8px 12px 2px'}">
+            <div style="${sf(`font-size:${isT?13:11}px;font-weight:700;color:#1a1a1a;line-height:1.3`)}">${esc(p.nom)}</div>
+          </div>` : `
           <div style="background:${p.bg};padding:${isT?'22px 18px 16px':'18px 14px 14px'};display:flex;flex-direction:column;gap:9px">
             <div style="color:${p.col};width:${isT?36:30}px;height:${isT?36:30}px">${ICONS[p.id]||''}</div>
             <div>
               <div style="${sf(`font-size:${isT?13:11}px;font-weight:700;color:#1a1a1a;line-height:1.3;margin-bottom:4px`)}">${esc(p.nom)}</div>
               <span class="chip" style="background:${p.col}18;color:${p.col};font-size:9px;text-transform:uppercase;letter-spacing:.07em">${esc(p.cat)}</span>
             </div>
-          </div>
+          </div>`}
           <div style="padding:${isT?'12px 16px 14px':'8px 12px 10px'}">
             <p style="${sf(`font-size:${isT?12:10}px;color:#6b6b6b;font-weight:300;line-height:1.5`)}">${esc(p.accroche.slice(0,isT?90:65))}…</p>
           </div>
@@ -816,7 +834,8 @@ function prestationsHTML(isT) {
         <button onclick="event.stopPropagation();addPrestToPanier('${p.id}')" style="position:absolute;top:8px;right:8px;width:26px;height:26px;border-radius:50%;border:2px solid ${S.panier.find(x=>x.id==='presta_'+p.id)?'#0040A0':'rgba(0,0,0,.15)'};background:${S.panier.find(x=>x.id==='presta_'+p.id)?'#0040A0':'rgba(255,255,255,.9)'};cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:${S.panier.find(x=>x.id==='presta_'+p.id)?'#fff':'#999'};box-shadow:0 1px 4px rgba(0,0,0,.15)">
           ${S.panier.find(x=>x.id==='presta_'+p.id)?'✓':'+'}
         </button>
-      </div>`).join('')}
+      </div>`;
+      }).join('')}
     </div>
   </div>`;
 }
@@ -826,7 +845,7 @@ function prestationDetailHTML(isT) {
   const p = S.selP;
   if(!p) return '<div></div>';
   // Resolve photos from external PHOTOS_DB or inline
-  const pPhotos = (typeof PHOTOS_DB!=="undefined"&&PHOTOS_DB[p.id]&&PHOTOS_DB[p.id].length) ? PHOTOS_DB[p.id] : (p.photos||[]);
+  const pPhotos = prestaPhotos(p);
   window.__galleryPhotos = pPhotos; // référence pour la visionneuse plein écran
   const vedettes = VEDETTES.filter(v=>v.prestation===p.id);
   const matCatIdx = PRESTA_MAT_MAP[p.id];
