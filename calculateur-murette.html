@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculateur Murette & Clôture — Loire Aménagement</title>
+<style>
+  :root{
+    --stone:#DAD7CE;
+    --stone-dark:#C7C3B7;
+    --ink:#23262A;
+    --ink-soft:#5B5E60;
+    --paper:#F1EFE9;
+    --brick:#A6472B;
+    --brick-dark:#8A3A22;
+    --steel:#3F5568;
+    --steel-soft:#8FA3B0;
+    --line:#B9B5A8;
+    --ok:#5A6B45;
+    --radius:3px;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--stone);
+    color:var(--ink);
+    font-family:'IBM Plex Sans', system-ui, sans-serif;
+    line-height:1.4;
+    padding-bottom:60px;
+  }
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+  header{
+    background:var(--ink);
+    color:var(--paper);
+    padding:22px 18px 20px;
+  }
+  header h1{
+    font-family:'Space Grotesk', sans-serif;
+    font-size:1.35rem;
+    font-weight:700;
+    margin:0 0 4px;
+    letter-spacing:-0.01em;
+  }
+  header p{
+    margin:0;
+    font-size:0.82rem;
+    color:var(--steel-soft);
+  }
+
+  main{
+    max-width:720px;
+    margin:0 auto;
+    padding:16px;
+  }
+
+  section.block{
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    margin-bottom:14px;
+    overflow:hidden;
+  }
+  section.block > .head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:12px 14px;
+    cursor:pointer;
+    border-bottom:1px solid transparent;
+    user-select:none;
+  }
+  section.block.open > .head{
+    border-bottom-color:var(--line);
+  }
+  section.block > .head h2{
+    font-family:'Space Grotesk', sans-serif;
+    font-size:0.98rem;
+    font-weight:600;
+    margin:0;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  section.block > .head .num{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:20px;height:20px;
+    background:var(--brick);
+    color:#fff;
+    border-radius:50%;
+    font-size:0.7rem;
+    font-weight:600;
+    font-family:'IBM Plex Mono',monospace;
+  }
+  section.block > .head .chevron{
+    color:var(--ink-soft);
+    font-size:0.75rem;
+    transition:transform .15s ease;
+  }
+  section.block.open > .head .chevron{ transform:rotate(180deg); }
+  section.block > .body{
+    display:none;
+    padding:4px 14px 16px;
+  }
+  section.block.open > .body{ display:block; }
+
+  .field{ margin-bottom:12px; }
+  .field label{
+    display:block;
+    font-size:0.76rem;
+    color:var(--ink-soft);
+    margin-bottom:4px;
+    font-weight:500;
+  }
+  .row{ display:flex; gap:8px; flex-wrap:wrap; }
+  .row > .field{ flex:1; min-width:120px; }
+
+  input[type=number], input[type=text], select{
+    width:100%;
+    padding:8px 9px;
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    background:#fff;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.88rem;
+    color:var(--ink);
+  }
+  select{ font-family:'IBM Plex Sans', sans-serif; }
+  input:focus, select:focus{
+    outline:none;
+    border-color:var(--brick);
+  }
+
+  label.chk{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-size:0.82rem;
+    color:var(--ink);
+    cursor:pointer;
+    margin-bottom:10px;
+  }
+  label.chk input{ width:auto; }
+
+  .segment{
+    border:1px solid var(--line);
+    border-left:3px solid var(--steel);
+    border-radius:var(--radius);
+    padding:10px 10px 8px;
+    margin-bottom:10px;
+    background:#fff;
+    position:relative;
+  }
+  .segment.portail{ border-left-color:var(--brick); }
+  .segment .seg-title{
+    font-size:0.72rem;
+    text-transform:uppercase;
+    letter-spacing:0.04em;
+    color:var(--ink-soft);
+    margin-bottom:6px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+  }
+  .segment .remove{
+    background:none;
+    border:none;
+    color:var(--brick);
+    font-size:0.95rem;
+    cursor:pointer;
+    padding:0 4px;
+    font-family:'IBM Plex Mono',monospace;
+  }
+  .point{
+    border:1px dashed var(--line);
+    border-radius:var(--radius);
+    padding:8px 10px;
+    margin:0 0 10px;
+    background:#FBFAF7;
+    display:flex;
+    gap:8px;
+    align-items:center;
+  }
+  .point .lbl{
+    font-size:0.72rem;
+    color:var(--ink-soft);
+    width:64px;
+    flex:none;
+    font-family:'IBM Plex Mono',monospace;
+  }
+  .point select{ flex:1; }
+
+  button.add{
+    width:100%;
+    padding:9px;
+    background:none;
+    border:1px dashed var(--steel);
+    color:var(--steel);
+    border-radius:var(--radius);
+    font-size:0.85rem;
+    font-weight:500;
+    cursor:pointer;
+    margin-top:2px;
+  }
+  button.add:hover{ background:#eef2f4; }
+
+  .warn{
+    font-size:0.76rem;
+    color:var(--brick-dark);
+    background:#FBEDE7;
+    border:1px solid #E8C7B8;
+    border-radius:var(--radius);
+    padding:7px 9px;
+    margin-bottom:10px;
+  }
+
+  .hint{
+    font-size:0.74rem;
+    color:var(--ink-soft);
+    margin:-6px 0 12px;
+  }
+
+  /* Results */
+  .results-total{
+    background:var(--ink);
+    color:var(--paper);
+    padding:16px 14px;
+    border-radius:var(--radius);
+    margin-bottom:14px;
+  }
+  .results-total .amount{
+    font-family:'Space Grotesk', sans-serif;
+    font-size:2rem;
+    font-weight:700;
+    color:#fff;
+  }
+  .results-total .label{
+    font-size:0.76rem;
+    color:var(--steel-soft);
+    text-transform:uppercase;
+    letter-spacing:0.04em;
+  }
+
+  .postes{ margin-bottom:10px; }
+  .poste-group{
+    margin-bottom:14px;
+  }
+  .poste-group h3{
+    font-family:'Space Grotesk', sans-serif;
+    font-size:0.84rem;
+    font-weight:600;
+    margin:0 0 6px;
+    color:var(--steel);
+    border-bottom:1px solid var(--line);
+    padding-bottom:5px;
+  }
+  .line{
+    display:grid;
+    grid-template-columns:1fr auto auto;
+    gap:6px 10px;
+    align-items:center;
+    padding:5px 0;
+    font-size:0.85rem;
+    border-bottom:1px solid #EAE7DF;
+  }
+  .line .qty{
+    font-family:'IBM Plex Mono',monospace;
+    color:var(--ink-soft);
+    text-align:right;
+    white-space:nowrap;
+  }
+  .line .price-input{
+    display:flex;
+    align-items:center;
+    gap:3px;
+  }
+  .line .price-input input{
+    width:64px;
+    padding:4px 5px;
+    font-size:0.8rem;
+    text-align:right;
+  }
+  .line .price-input span{
+    font-size:0.72rem;
+    color:var(--ink-soft);
+  }
+  .line .subtotal{
+    font-family:'IBM Plex Mono',monospace;
+    font-weight:600;
+    text-align:right;
+    min-width:64px;
+  }
+  .empty-note{
+    font-size:0.82rem;
+    color:var(--ink-soft);
+    font-style:italic;
+    padding:6px 0;
+  }
+
+  footer.note{
+    max-width:720px;
+    margin:0 auto;
+    padding:0 16px;
+    font-size:0.74rem;
+    color:var(--ink-soft);
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Calculateur Murette &amp; Clôture</h1>
+  <p>Prototype — mur maçonné, piliers, portail, seuil</p>
+</header>
+
+<main id="app"></main>
+
+<footer class="note">
+  Prototype de travail — les coefficients techniques (kg/m², blocs/m², sections de piliers…) sont des valeurs de départ modifiables dans « Paramètres techniques ». Vérifiez-les avant chiffrage définitif.
+</footer>
+
+<script>
+// ---------- Data ----------
+const BLOC_FORMATS = [
+  { key:'creux2020', label:'Parpaing creux 20×20×50', L:50, H:20 },
+  { key:'plein1520', label:'Parpaing 15×20×50', L:50, H:20 },
+  { key:'plein1020', label:'Parpaing 10×20×50', L:50, H:20 },
+  { key:'bancher2025', label:'Bloc à bancher 20×25×50', L:50, H:25 },
+  { key:'custom', label:'Format personnalisé…', L:50, H:20 },
+];
+
+const SEG_TYPES = [
+  { key:'mur', label:'Murette (mur simple)' },
+  { key:'portail_battant', label:'Portail battant' },
+  { key:'portail_coulissant', label:'Portail coulissant' },
+  { key:'portillon', label:'Portillon' },
+];
+
+const SUPPORT_TYPES = [
+  { key:'aucun', label:'— Aucun —' },
+  { key:'pilier_prefab', label:'Pilier préfabriqué' },
+  { key:'pilier_maconne', label:'Pilier maçonné' },
+  { key:'poteau_alu', label:'Poteau alu' },
+];
+
+let state = {
+  closed: true,
+  segments: [
+    { id:1, longueur:8, type:'mur', pente:0 },
+    { id:2, longueur:3.5, type:'portail_battant', pente:0 },
+    { id:3, longueur:6, type:'mur', pente:0 },
+  ],
+  points: [], // synced length
+  params: {
+    hauteurMur: 0.6,
+    blocFormat: 'creux2020',
+    customL: 50, customH: 20,
+    jointCm: 1,
+    chutePct: 5,
+    cimentKgM2: 25,
+    sableKgM2: 60,
+    semelleLargeur: 40,
+    semelleProfondeur: 40,
+    semelleSousPortail: false,
+    acierSemelleKgMl: 3,
+    ancragePilier: 0.4,
+    pilierSection: 20,
+    hauteurBlocBancher: 20,
+    barresParPilier: 4,
+    kgMlBarre: 0.89,
+    dalleEpaisseur: 12,
+    dalleProfondeur: 1.2,
+    dalleAcierKgM2: 4,
+    // Pente / arase
+    arase: true,
+    hauteurRedanCm: 20,
+    acierSupplParRedanKg: 2,
+    // Enduit de façade
+    enduitActif: false,
+    enduitFaces: 1,
+    enduitConsoKgM2: 25,
+    // Portail coulissant — évacuation / rail sur toute la longueur de course
+    refoulementM: 0.30,
+    railLargeurCm: 40,
+    railProfondeurCm: 50,
+    acierRailKgMl: 4,
+    // Raidisseurs intermédiaires (NF DTU 20.1)
+    raidisseursAuto: true,
+    entraxeMaxBas: 4,
+    entraxeMaxHaut: 3,
+    seuilHauteurReduite: 1.8,
+    sectionRaidisseurCm: 20,
+    barresParRaidisseur: 2,
+    // Couronnement
+    couronnementType: 'aucun', // aucun | chapeau_prefab | couvertine_alu
+    longueurUniteChapeauCm: 50,
+    chuteCouronnementPct: 5,
+  },
+  prices: {
+    bloc: 1.20,
+    sacCiment: 8.50,
+    sableTonne: 35,
+    acierKg: 1.80,
+    betonM3: 130,
+    blocBancher: 2.50,
+    pilierPrefab: 45,
+    poteauAlu: 120,
+    enduitKg: 0.90,
+    chapeauUnit: 6.50,
+    couvertineMl: 28,
+    capuchonPilierUnit: 12,
+  },
+  openSections: { dtu:false, segments:true, params:false, prices:false, results:true },
+};
+let segIdCounter = 4;
+
+function syncPoints(){
+  const needed = state.closed ? state.segments.length : state.segments.length + 1;
+  while(state.points.length < needed) state.points.push({ support:'aucun' });
+  while(state.points.length > needed) state.points.pop();
+}
+
+// ---------- Calculations ----------
+function calc(){
+  const p = state.params;
+  const segs = state.segments;
+
+  const format = BLOC_FORMATS.find(f=>f.key===p.blocFormat);
+  const blocL = p.blocFormat==='custom' ? p.customL : format.L;
+  const blocH = p.blocFormat==='custom' ? p.customH : format.H;
+  const blocsParM2 = 10000 / ((blocL+p.jointCm) * (blocH+p.jointCm));
+
+  const segsMur = segs.filter(s=>s.type==='mur');
+  const longueurMur = segsMur.reduce((a,s)=>a+Number(s.longueur||0),0);
+  const segsBattant = segs.filter(s=>s.type==='portail_battant' || s.type==='portillon');
+  const segsCoulissant = segs.filter(s=>s.type==='portail_coulissant');
+  const longueurBattant = segsBattant.reduce((a,s)=>a+Number(s.longueur||0),0);
+  const longueurCoulissantOuverture = segsCoulissant.reduce((a,s)=>a+Number(s.longueur||0),0);
+  const longueurPortailTotal = longueurBattant + longueurCoulissantOuverture;
+
+  // Surface de mur corrigée par la pente de terrain (arase horizontale => hauteur variable)
+  // + raidisseurs intermédiaires automatiques (NF DTU 20.1 : entraxe max 4 m, réduit à 3 m au-delà de 1,80 m)
+  let surfaceMur = 0;
+  let hauteurMurMax = p.hauteurMur;
+  let nbRedansTotal = 0;
+  let nbRaidisseursAuto = 0;
+  segsMur.forEach(s=>{
+    const longueur = Number(s.longueur||0);
+    const pente = Number(s.pente||0);
+    const denivele = longueur * Math.abs(pente)/100;
+    const hauteurMoyenne = p.hauteurMur + (p.arase ? denivele/2 : 0);
+    const hauteurMaxSeg = p.hauteurMur + (p.arase ? denivele : 0);
+    surfaceMur += longueur * hauteurMoyenne;
+    if(hauteurMaxSeg > hauteurMurMax) hauteurMurMax = hauteurMaxSeg;
+    if(p.arase && denivele > 0){
+      nbRedansTotal += Math.ceil((denivele*100) / p.hauteurRedanCm);
+    }
+    if(p.raidisseursAuto){
+      const entraxe = hauteurMaxSeg > p.seuilHauteurReduite ? p.entraxeMaxHaut : p.entraxeMaxBas;
+      if(longueur > entraxe){
+        nbRaidisseursAuto += Math.ceil(longueur/entraxe) - 1;
+      }
+    }
+  });
+
+  const nbBlocs = Math.ceil(surfaceMur * blocsParM2 * (1 + p.chutePct/100));
+  const kgCiment = surfaceMur * p.cimentKgM2;
+  const sacsCiment = Math.ceil(kgCiment / 35);
+  const kgSable = surfaceMur * p.sableKgM2;
+  const tSable = kgSable/1000;
+
+  const longueurSemelle = longueurMur + (p.semelleSousPortail ? longueurPortailTotal : 0);
+  const volSemelle = longueurSemelle * (p.semelleLargeur/100) * (p.semelleProfondeur/100);
+  const kgAcierSemelle = longueurSemelle * p.acierSemelleKgMl + nbRedansTotal * p.acierSupplParRedanKg;
+
+  const nbPilierPrefab = state.points.filter(pt=>pt.support==='pilier_prefab').length;
+  const nbPoteauAlu = state.points.filter(pt=>pt.support==='poteau_alu').length;
+  const nbPilierMaconne = state.points.filter(pt=>pt.support==='pilier_maconne').length;
+
+  const hauteurPilier = p.hauteurMur + p.ancragePilier;
+  const blocsBancherParPilier = Math.ceil((hauteurPilier*100) / p.hauteurBlocBancher);
+  const nbBlocsBancher = nbPilierMaconne * blocsBancherParPilier;
+  const volBetonPiliers = nbPilierMaconne * Math.pow(p.pilierSection/100,2) * hauteurPilier;
+  const kgAcierPiliers = nbPilierMaconne * p.barresParPilier * hauteurPilier * p.kgMlBarre;
+
+  // Raidisseurs intermédiaires (même principe que les piliers maçonnés, section plus fine)
+  const nbBlocsBancherRaidisseur = nbRaidisseursAuto * blocsBancherParPilier;
+  const volBetonRaidisseurs = nbRaidisseursAuto * Math.pow(p.sectionRaidisseurCm/100,2) * hauteurPilier;
+  const kgAcierRaidisseurs = nbRaidisseursAuto * p.barresParRaidisseur * hauteurPilier * p.kgMlBarre;
+
+  // Seuil portail battant / portillon — dalle localisée
+  const surfaceDalleBattant = longueurBattant * p.dalleProfondeur;
+  const volBetonDalleBattant = surfaceDalleBattant * (p.dalleEpaisseur/100);
+  const kgAcierDalleBattant = surfaceDalleBattant * p.dalleAcierKgM2;
+
+  // Portail coulissant — évacuation/rail sur toute la longueur de course (ouverture + refoulement fixe)
+  const longueurRailCoulissant = segsCoulissant.reduce((a,s)=>a+Number(s.longueur||0)+p.refoulementM,0);
+  const volBetonRailCoulissant = longueurRailCoulissant * (p.railLargeurCm/100) * (p.railProfondeurCm/100);
+  const kgAcierRailCoulissant = longueurRailCoulissant * p.acierRailKgMl;
+
+  // Enduit de façade
+  const surfaceEnduit = p.enduitActif ? surfaceMur * p.enduitFaces : 0;
+  const kgEnduit = surfaceEnduit * p.enduitConsoKgM2;
+  const sacsEnduit = Math.ceil(kgEnduit / 25);
+
+  // Couronnement (chapeaux préfabriqués ou couvertine alu) + capuchons de piliers
+  const nbCapuchonPilier = nbPilierMaconne + nbPilierPrefab;
+  let nbChapeaux = 0, mlCouvertine = 0;
+  if(p.couronnementType==='chapeau_prefab'){
+    nbChapeaux = Math.ceil((longueurMur*100/p.longueurUniteChapeauCm) * (1+p.chuteCouronnementPct/100));
+  } else if(p.couronnementType==='couvertine_alu'){
+    mlCouvertine = longueurMur * (1+p.chuteCouronnementPct/100);
+  }
+
+  const volBetonTotal = volSemelle + volBetonPiliers + volBetonRaidisseurs + volBetonDalleBattant + volBetonRailCoulissant;
+  const kgAcierTotal = kgAcierSemelle + kgAcierPiliers + kgAcierRaidisseurs + kgAcierDalleBattant + kgAcierRailCoulissant;
+  const nbBlocsBancherTotal = nbBlocsBancher + nbBlocsBancherRaidisseur;
+
+  return {
+    surfaceMur, nbBlocs, sacsCiment, kgSable, tSable, hauteurMurMax, nbRedansTotal,
+    longueurSemelle, volSemelle, kgAcierSemelle,
+    nbPilierPrefab, nbPoteauAlu, nbPilierMaconne, nbBlocsBancher, volBetonPiliers, kgAcierPiliers,
+    nbRaidisseursAuto, nbBlocsBancherRaidisseur, volBetonRaidisseurs, kgAcierRaidisseurs, nbBlocsBancherTotal,
+    surfaceDalleBattant, volBetonDalleBattant, kgAcierDalleBattant, longueurBattant,
+    longueurCoulissantOuverture, longueurRailCoulissant, volBetonRailCoulissant, kgAcierRailCoulissant,
+    surfaceEnduit, kgEnduit, sacsEnduit,
+    nbCapuchonPilier, nbChapeaux, mlCouvertine,
+    volBetonTotal, kgAcierTotal, longueurPortailTotal,
+  };
+}
+
+// ---------- Rendering ----------
+function fmt(n, d=1){ return Number(n).toLocaleString('fr-FR', {minimumFractionDigits:d, maximumFractionDigits:d}); }
+function euro(n){ return Number(n).toLocaleString('fr-FR', {minimumFractionDigits:2, maximumFractionDigits:2}) + ' €'; }
+
+function render(){
+  syncPoints();
+  const app = document.getElementById('app');
+  const r = calc();
+  const pr = state.prices;
+
+  const coutBlocs = r.nbBlocs * pr.bloc;
+  const coutCiment = r.sacsCiment * pr.sacCiment;
+  const coutSable = r.tSable * pr.sableTonne;
+  const coutBeton = r.volBetonTotal * pr.betonM3;
+  const coutAcier = r.kgAcierTotal * pr.acierKg;
+  const coutBlocsBancher = r.nbBlocsBancherTotal * pr.blocBancher;
+  const coutPilierPrefab = r.nbPilierPrefab * pr.pilierPrefab;
+  const coutPoteauAlu = r.nbPoteauAlu * pr.poteauAlu;
+  const coutEnduit = r.kgEnduit * pr.enduitKg;
+  const coutChapeaux = r.nbChapeaux * pr.chapeauUnit;
+  const coutCouvertine = r.mlCouvertine * pr.couvertineMl;
+  const coutCapuchons = r.nbCapuchonPilier * pr.capuchonPilierUnit;
+  const total = coutBlocs+coutCiment+coutSable+coutBeton+coutAcier+coutBlocsBancher+coutPilierPrefab+coutPoteauAlu+coutEnduit+coutChapeaux+coutCouvertine+coutCapuchons;
+
+  const anyMur = state.segments.some(s=>s.type==='mur');
+  const anyBattant = state.segments.some(s=>s.type==='portail_battant' || s.type==='portillon');
+  const anyCoulissant = state.segments.some(s=>s.type==='portail_coulissant');
+
+  // Check for portail segments without bounding support
+  // point[i] = junction BEFORE segment i; right boundary of segment i = point[i+1] (wrapped if closed)
+  let warnPortail = '';
+  state.segments.forEach((s, i)=>{
+    if(s.type==='mur') return;
+    const left = state.points[i];
+    const rightIdx = state.closed ? (i+1)%state.segments.length : i+1;
+    const right = state.points[rightIdx];
+    if(left && right && left.support==='aucun' && right.support==='aucun'){
+      warnPortail += `<div class="warn">Le segment « ${segLabel(s.type)} » (${s.longueur} m) n'a aucun support (pilier/poteau) à ses extrémités.</div>`;
+    }
+  });
+  if(r.hauteurMurMax > 2){
+    const msgHauteur = state.params.raidisseursAuto
+      ? " — l'entraxe des raidisseurs a été resserré en conséquence, mais au-delà de 2 m un avis de bureau d'études reste recommandé (NF DTU 20.1)."
+      : " — pensez à resserrer les raidisseurs intermédiaires (NF DTU 20.1) ou activez le calcul automatique.";
+    warnPortail += `<div class="warn">Hauteur de mur atteignant ${fmt(r.hauteurMurMax,2)} m au point le plus haut (pente comprise)${msgHauteur}</div>`;
+  }
+
+  app.innerHTML = `
+    ${section('dtu','—','Repères DTU (informatif)', renderDTU())}
+    ${section('segments','1','Tracé de la clôture', renderSegments())}
+    ${section('params','2','Paramètres techniques', renderParams())}
+    ${section('prices','3','Prix unitaires', renderPrices())}
+    ${section('results','4','Résultats & chiffrage', warnPortail + renderResults(r, pr, {coutBlocs,coutCiment,coutSable,coutBeton,coutAcier,coutBlocsBancher,coutPilierPrefab,coutPoteauAlu,coutEnduit,coutChapeaux,coutCouvertine,coutCapuchons,total}, anyMur, anyBattant, anyCoulissant))}
+  `;
+  attachHandlers();
+}
+
+function renderDTU(){
+  return `
+    <div class="hint" style="margin-top:0;">
+      Repères à vérifier au cas par cas — ce prototype ne remplace pas une note de calcul.
+    </div>
+    <ul style="font-size:0.82rem; padding-left:18px; margin:0 0 4px;">
+      <li><b>NF DTU 20.1</b> — maçonnerie de petits éléments (parpaings, blocs) : dispositions constructives, chaînages, hauteur libre.</li>
+      <li><b>NF DTU 13.3</b> — dallages sur terre-plein : épaisseur mini 12 cm en usage courant (valeur reprise par défaut pour le seuil).</li>
+      <li><b>NF DTU 26.1</b> — travaux d'enduits de mortier sur façade.</li>
+      <li><b>NF DTU 13.1</b> — fondations superficielles (semelles filantes) : profondeur hors-gel à adapter à la région.</li>
+    </ul>
+  `;
+}
+
+function segLabel(key){ return SEG_TYPES.find(t=>t.key===key)?.label || key; }
+
+function section(key, num, title, bodyHtml){
+  const open = state.openSections[key] ? 'open' : '';
+  return `
+    <section class="block ${open}" data-section="${key}">
+      <div class="head" data-toggle="${key}">
+        <h2><span class="num">${num}</span>${title}</h2>
+        <span class="chevron">▾</span>
+      </div>
+      <div class="body">${bodyHtml}</div>
+    </section>
+  `;
+}
+
+function renderSegments(){
+  let html = `<label class="chk"><input type="checkbox" id="closedToggle" ${state.closed?'checked':''}> Tracé fermé (clôture périphérique complète)</label>`;
+  html += `<div class="hint">Chaque segment = un côté droit de la parcelle. Les supports (piliers/poteaux) se placent aux jonctions entre segments.</div>`;
+
+  state.segments.forEach((s, i)=>{
+    const isPortail = s.type !== 'mur';
+    html += `
+      ${renderPoint(i, i===0 ? 'Départ' : 'Angle '+i)}
+      <div class="segment ${isPortail?'portail':''}" data-seg="${s.id}">
+        <div class="seg-title"><span>Segment ${i+1}</span><button class="remove" data-remove-seg="${s.id}">✕</button></div>
+        <div class="row">
+          <div class="field">
+            <label>Longueur (m)</label>
+            <input type="number" step="any" min="0" value="${s.longueur}" data-seg-field="${s.id}:longueur">
+          </div>
+          <div class="field">
+            <label>Type</label>
+            <select data-seg-field="${s.id}:type">
+              ${SEG_TYPES.map(t=>`<option value="${t.key}" ${t.key===s.type?'selected':''}>${t.label}</option>`).join('')}
+            </select>
+          </div>
+        </div>
+        ${s.type==='mur' ? `
+        <div class="field" style="margin-bottom:0;">
+          <label>Pente du terrain sur ce linéaire (%)</label>
+          <input type="number" step="any" value="${s.pente||0}" data-seg-field="${s.id}:pente">
+        </div>` : ''}
+      </div>
+    `;
+  });
+  if(!state.closed){
+    html += renderPoint(state.segments.length, 'Extrémité');
+  }
+  html += `<button class="add" data-add-seg>+ Ajouter un segment</button>`;
+  return html;
+}
+
+function renderPoint(idx, label){
+  // point[i] = junction BEFORE segment i (wraps to after the last segment when closed)
+  const pt = state.points[idx];
+  if(!pt) return '';
+  return `
+    <div class="point">
+      <span class="lbl">${label}</span>
+      <select data-pt-field="${idx}">
+        ${SUPPORT_TYPES.map(t=>`<option value="${t.key}" ${t.key===pt.support?'selected':''}>${t.label}</option>`).join('')}
+      </select>
+    </div>
+  `;
+}
+
+function renderParams(){
+  const p = state.params;
+  const isCustom = p.blocFormat === 'custom';
+  return `
+    <div class="row">
+      <div class="field">
+        <label>Hauteur de la murette (m)</label>
+        <input type="number" step="0.05" value="${p.hauteurMur}" data-param="hauteurMur">
+      </div>
+      <div class="field">
+        <label>Format de bloc (mur)</label>
+        <select data-param="blocFormat">
+          ${BLOC_FORMATS.map(f=>`<option value="${f.key}" ${f.key===p.blocFormat?'selected':''}>${f.label}</option>`).join('')}
+        </select>
+      </div>
+    </div>
+    ${isCustom ? `
+    <div class="row">
+      <div class="field"><label>Longueur bloc (cm)</label><input type="number" value="${p.customL}" data-param="customL"></div>
+      <div class="field"><label>Hauteur bloc (cm)</label><input type="number" value="${p.customH}" data-param="customH"></div>
+    </div>` : ''}
+    <div class="row">
+      <div class="field"><label>Joint (cm)</label><input type="number" step="0.5" value="${p.jointCm}" data-param="jointCm"></div>
+      <div class="field"><label>Perte / chute (%)</label><input type="number" value="${p.chutePct}" data-param="chutePct"></div>
+    </div>
+    <div class="row">
+      <div class="field"><label>Ciment (kg/m² de mur)</label><input type="number" value="${p.cimentKgM2}" data-param="cimentKgM2"></div>
+      <div class="field"><label>Sable (kg/m² de mur)</label><input type="number" value="${p.sableKgM2}" data-param="sableKgM2"></div>
+    </div>
+    <div class="hint">— Semelle de fondation —</div>
+    <div class="row">
+      <div class="field"><label>Largeur semelle (cm)</label><input type="number" value="${p.semelleLargeur}" data-param="semelleLargeur"></div>
+      <div class="field"><label>Profondeur semelle (cm)</label><input type="number" value="${p.semelleProfondeur}" data-param="semelleProfondeur"></div>
+    </div>
+    <div class="field"><label>Acier semelle (kg/ml)</label><input type="number" step="0.1" value="${p.acierSemelleKgMl}" data-param="acierSemelleKgMl"></div>
+    <label class="chk"><input type="checkbox" ${p.semelleSousPortail?'checked':''} data-param-chk="semelleSousPortail"> Semelle continue sous les segments de portail aussi</label>
+    <div class="hint">— Piliers maçonnés (angles, jonctions, portails) —</div>
+    <div class="row">
+      <div class="field"><label>Ancrage sous mur (m)</label><input type="number" step="0.05" value="${p.ancragePilier}" data-param="ancragePilier"></div>
+      <div class="field"><label>Section pilier (cm)</label><input type="number" value="${p.pilierSection}" data-param="pilierSection"></div>
+    </div>
+    <div class="row">
+      <div class="field"><label>Hauteur bloc à bancher (cm)</label><input type="number" value="${p.hauteurBlocBancher}" data-param="hauteurBlocBancher"></div>
+      <div class="field"><label>Barres verticales / pilier</label><input type="number" value="${p.barresParPilier}" data-param="barresParPilier"></div>
+    </div>
+    <div class="field"><label>Acier (kg/ml de barre, ex. HA12 ≈ 0,89)</label><input type="number" step="0.01" value="${p.kgMlBarre}" data-param="kgMlBarre"></div>
+    <div class="hint">— Raidisseurs intermédiaires (NF DTU 20.1) —</div>
+    <label class="chk"><input type="checkbox" ${p.raidisseursAuto?'checked':''} data-param-chk="raidisseursAuto"> Calculer automatiquement les raidisseurs intermédiaires</label>
+    <div class="hint" style="margin-top:-6px;">Entraxe max 4 m en mur courant, réduit à 3 m au-delà de la hauteur de bascule ci-dessous — en plus des piliers déjà posés aux angles/jonctions. Repère de terrain à confirmer selon exposition au vent.</div>
+    ${p.raidisseursAuto ? `
+    <div class="row">
+      <div class="field"><label>Entraxe max (m), mur ≤ seuil</label><input type="number" step="0.1" value="${p.entraxeMaxBas}" data-param="entraxeMaxBas"></div>
+      <div class="field"><label>Entraxe max (m), mur &gt; seuil</label><input type="number" step="0.1" value="${p.entraxeMaxHaut}" data-param="entraxeMaxHaut"></div>
+    </div>
+    <div class="row">
+      <div class="field"><label>Seuil de hauteur (m)</label><input type="number" step="0.1" value="${p.seuilHauteurReduite}" data-param="seuilHauteurReduite"></div>
+      <div class="field"><label>Section raidisseur (cm)</label><input type="number" value="${p.sectionRaidisseurCm}" data-param="sectionRaidisseurCm"></div>
+    </div>
+    <div class="field"><label>Barres verticales / raidisseur</label><input type="number" value="${p.barresParRaidisseur}" data-param="barresParRaidisseur"></div>
+    ` : ''}
+    <div class="hint">— Seuil de portail (dalle) —</div>
+    <div class="row">
+      <div class="field"><label>Épaisseur dalle (cm)</label><input type="number" value="${p.dalleEpaisseur}" data-param="dalleEpaisseur"></div>
+      <div class="field"><label>Profondeur dalle (m)</label><input type="number" step="0.1" value="${p.dalleProfondeur}" data-param="dalleProfondeur"></div>
+    </div>
+    <div class="field"><label>Acier semelle S35 (kg/m² de dalle)</label><input type="number" step="0.1" value="${p.dalleAcierKgM2}" data-param="dalleAcierKgM2"></div>
+    <div class="hint">— Portail coulissant : évacuation / rail sur toute la course —</div>
+    <div class="hint" style="margin-top:-6px;">Contrairement au battant (seuil localisé sur la largeur de l'ouverture), le coulissant nécessite une fondation continue sur la longueur de course (ouverture + refoulement).</div>
+    <div class="field"><label>Refoulement (m, forfaitaire en plus de l'ouverture)</label><input type="number" step="0.05" value="${p.refoulementM}" data-param="refoulementM"></div>
+    <div class="row">
+      <div class="field"><label>Largeur rail (cm)</label><input type="number" value="${p.railLargeurCm}" data-param="railLargeurCm"></div>
+      <div class="field"><label>Profondeur rail (cm)</label><input type="number" value="${p.railProfondeurCm}" data-param="railProfondeurCm"></div>
+    </div>
+    <div class="field"><label>Acier rail (kg/ml)</label><input type="number" step="0.1" value="${p.acierRailKgMl}" data-param="acierRailKgMl"></div>
+    <div class="hint">— Pente de terrain & arase —</div>
+    <label class="chk"><input type="checkbox" ${p.arase?'checked':''} data-param-chk="arase"> Arase horizontale (mur à hauteur constante en haut, fondation en redans suivant la pente)</label>
+    <div class="hint" style="margin-top:-6px;">Si décoché : le mur suit le fil du terrain, sa hauteur reste celle saisie ci-dessus sans correction liée à la pente.</div>
+    <div class="row">
+      <div class="field"><label>Hauteur d'un redan (cm)</label><input type="number" value="${p.hauteurRedanCm}" data-param="hauteurRedanCm"></div>
+      <div class="field"><label>Acier suppl. / redan (kg)</label><input type="number" step="0.1" value="${p.acierSupplParRedanKg}" data-param="acierSupplParRedanKg"></div>
+    </div>
+    <div class="hint">— Enduit de façade —</div>
+    <label class="chk"><input type="checkbox" ${p.enduitActif?'checked':''} data-param-chk="enduitActif"> Prévoir un enduit de façade (NF DTU 26.1)</label>
+    ${p.enduitActif ? `
+    <div class="row">
+      <div class="field">
+        <label>Faces enduites</label>
+        <select data-param="enduitFaces">
+          <option value="1" ${p.enduitFaces==1?'selected':''}>1 face</option>
+          <option value="2" ${p.enduitFaces==2?'selected':''}>2 faces</option>
+        </select>
+      </div>
+      <div class="field"><label>Consommation (kg/m²)</label><input type="number" value="${p.enduitConsoKgM2}" data-param="enduitConsoKgM2"></div>
+    </div>` : ''}
+    <div class="hint">— Couronnement (chapeaux / couvertine) —</div>
+    <div class="field">
+      <label>Type de couronnement</label>
+      <select data-param="couronnementType">
+        <option value="aucun" ${p.couronnementType==='aucun'?'selected':''}>— Aucun —</option>
+        <option value="chapeau_prefab" ${p.couronnementType==='chapeau_prefab'?'selected':''}>Chapeaux préfabriqués (béton/pierre)</option>
+        <option value="couvertine_alu" ${p.couronnementType==='couvertine_alu'?'selected':''}>Couvertine aluminium</option>
+      </select>
+    </div>
+    ${p.couronnementType==='chapeau_prefab' ? `
+    <div class="row">
+      <div class="field"><label>Longueur d'un chapeau (cm)</label><input type="number" value="${p.longueurUniteChapeauCm}" data-param="longueurUniteChapeauCm"></div>
+      <div class="field"><label>Chute (%)</label><input type="number" value="${p.chuteCouronnementPct}" data-param="chuteCouronnementPct"></div>
+    </div>` : ''}
+    ${p.couronnementType==='couvertine_alu' ? `
+    <div class="field"><label>Chute (%)</label><input type="number" value="${p.chuteCouronnementPct}" data-param="chuteCouronnementPct"></div>
+    ` : ''}
+    ${p.couronnementType!=='aucun' ? `<div class="hint" style="margin-top:-6px;">Un capuchon est aussi compté pour chaque pilier (maçonné ou préfabriqué).</div>` : ''}
+  `;
+}
+
+function renderPrices(){
+  const pr = state.prices;
+  const items = [
+    ['bloc','Bloc / parpaing (€/unité)'],
+    ['sacCiment','Sac de ciment 35kg (€)'],
+    ['sableTonne','Sable (€/tonne)'],
+    ['betonM3','Béton prêt à l’emploi (€/m³)'],
+    ['acierKg','Acier (€/kg)'],
+    ['blocBancher','Bloc à bancher (€/unité)'],
+    ['pilierPrefab','Pilier préfabriqué (€/unité)'],
+    ['poteauAlu','Poteau alu (€/unité)'],
+    ['enduitKg','Enduit de façade (€/kg)'],
+    ['chapeauUnit','Chapeau préfabriqué (€/unité)'],
+    ['couvertineMl','Couvertine alu (€/ml)'],
+    ['capuchonPilierUnit','Capuchon de pilier (€/unité)'],
+  ];
+  return items.map(([k,label])=>`
+    <div class="field">
+      <label>${label}</label>
+      <input type="number" step="0.01" value="${pr[k]}" data-price="${k}">
+    </div>
+  `).join('');
+}
+
+function renderResults(r, pr, c, anyMur, anyBattant, anyCoulissant){
+  let html = `
+    <div class="results-total">
+      <div class="label">Total fournitures estimé</div>
+      <div class="amount">${euro(c.total)}</div>
+    </div>
+    <div class="postes">
+  `;
+
+  if(anyMur){
+    html += `
+      <div class="poste-group">
+        <h3>Mur / soubassement (${fmt(r.surfaceMur,1)} m²${r.hauteurMurMax>state.params.hauteurMur+0.001 ? ', hauteur max '+fmt(r.hauteurMurMax,2)+' m' : ''})</h3>
+        ${line('Blocs', fmt(r.nbBlocs,0)+' u', 'bloc', pr.bloc, c.coutBlocs)}
+        ${line('Ciment', fmt(r.sacsCiment,0)+' sacs', 'sacCiment', pr.sacCiment, c.coutCiment)}
+        ${line('Sable', fmt(r.tSable,2)+' t', 'sableTonne', pr.sableTonne, c.coutSable)}
+      </div>
+      <div class="poste-group">
+        <h3>Semelle de fondation (${fmt(r.longueurSemelle,1)} ml${r.nbRedansTotal ? ', '+r.nbRedansTotal+' redan(s)' : ''})</h3>
+        ${line('Béton semelle', fmt(r.volSemelle,2)+' m³', null, null, null, true)}
+        ${line('Acier semelle', fmt(r.kgAcierSemelle,1)+' kg', null, null, null, true)}
+      </div>
+    `;
+  }
+
+  if(state.params.enduitActif && r.surfaceEnduit>0){
+    html += `
+      <div class="poste-group">
+        <h3>Enduit de façade (${fmt(r.surfaceEnduit,1)} m²)</h3>
+        ${line('Enduit', fmt(r.kgEnduit,0)+' kg (≈'+r.sacsEnduit+' sacs 25kg)', 'enduitKg', pr.enduitKg, c.coutEnduit)}
+      </div>
+    `;
+  }
+
+  if(r.nbPilierPrefab || r.nbPoteauAlu || r.nbPilierMaconne || r.nbRaidisseursAuto){
+    html += `<div class="poste-group"><h3>Piliers, poteaux &amp; raidisseurs</h3>`;
+    if(r.nbPilierPrefab) html += line('Piliers préfabriqués', r.nbPilierPrefab+' u', 'pilierPrefab', pr.pilierPrefab, c.coutPilierPrefab);
+    if(r.nbPoteauAlu) html += line('Poteaux alu', r.nbPoteauAlu+' u', 'poteauAlu', pr.poteauAlu, c.coutPoteauAlu);
+    if(r.nbBlocsBancherTotal){
+      html += line('Blocs à bancher (piliers + raidisseurs)', fmt(r.nbBlocsBancherTotal,0)+' u', 'blocBancher', pr.blocBancher, c.coutBlocsBancher);
+    }
+    if(r.nbPilierMaconne){
+      html += line('— dont piliers maçonnés (angles/jonctions)', r.nbPilierMaconne+' u', null,null,null,true);
+    }
+    if(r.nbRaidisseursAuto){
+      html += line('— dont raidisseurs intermédiaires (DTU 20.1)', r.nbRaidisseursAuto+' u', null,null,null,true);
+    }
+    html += `</div>`;
+  }
+
+  if(anyBattant){
+    html += `
+      <div class="poste-group">
+        <h3>Seuil portail battant / portillon (${fmt(r.surfaceDalleBattant,1)} m²)</h3>
+        ${line('Béton dalle', fmt(r.volBetonDalleBattant,2)+' m³', null,null,null,true)}
+        ${line('Acier semelle S35', fmt(r.kgAcierDalleBattant,1)+' kg', null,null,null,true)}
+      </div>
+    `;
+  }
+
+  if(anyCoulissant){
+    html += `
+      <div class="poste-group">
+        <h3>Évacuation seuil portail coulissant (${fmt(r.longueurRailCoulissant,1)} ml sur ${fmt(r.longueurCoulissantOuverture,1)} m d'ouverture)</h3>
+        ${line('Béton rail continu', fmt(r.volBetonRailCoulissant,2)+' m³', null,null,null,true)}
+        ${line('Acier rail', fmt(r.kgAcierRailCoulissant,1)+' kg', null,null,null,true)}
+      </div>
+    `;
+  }
+
+  if(state.params.couronnementType!=='aucun'){
+    html += `<div class="poste-group"><h3>Couronnement</h3>`;
+    if(state.params.couronnementType==='chapeau_prefab'){
+      html += line('Chapeaux préfabriqués', fmt(r.nbChapeaux,0)+' u', 'chapeauUnit', pr.chapeauUnit, c.coutChapeaux);
+    } else if(state.params.couronnementType==='couvertine_alu'){
+      html += line('Couvertine alu', fmt(r.mlCouvertine,1)+' ml', 'couvertineMl', pr.couvertineMl, c.coutCouvertine);
+    }
+    if(r.nbCapuchonPilier){
+      html += line('Capuchons de pilier', r.nbCapuchonPilier+' u', 'capuchonPilierUnit', pr.capuchonPilierUnit, c.coutCapuchons);
+    }
+    html += `</div>`;
+  }
+
+  html += `
+    <div class="poste-group">
+      <h3>Béton &amp; acier — total consolidé</h3>
+      ${line('Béton (semelle + piliers + raidisseurs + seuils)', fmt(r.volBetonTotal,2)+' m³', 'betonM3', pr.betonM3, c.coutBeton)}
+      ${line('Acier (semelle + piliers + raidisseurs + seuils)', fmt(r.kgAcierTotal,1)+' kg', 'acierKg', pr.acierKg, c.coutAcier)}
+    </div>
+  `;
+
+  if(!anyMur && !anyBattant && !anyCoulissant){
+    html += `<div class="empty-note">Ajoutez au moins un segment pour voir le chiffrage.</div>`;
+  }
+
+  html += `</div>`;
+  return html;
+}
+
+function line(label, qty, priceKey, priceVal, subtotal, noPrice){
+  if(noPrice){
+    return `<div class="line"><span>${label}</span><span class="qty">${qty}</span><span class="subtotal">—</span></div>`;
+  }
+  return `
+    <div class="line">
+      <span>${label}</span>
+      <span class="qty">${qty}</span>
+      <span class="subtotal">${euro(subtotal)}</span>
+    </div>
+    <div class="line" style="border-bottom:none;padding-top:0;">
+      <span></span>
+      <span class="price-input"><input type="number" step="0.01" value="${priceVal}" data-price="${priceKey}"><span>€/u</span></span>
+      <span></span>
+    </div>
+  `;
+}
+
+// ---------- Event handling ----------
+function attachHandlers(){
+  document.querySelectorAll('[data-toggle]').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      const key = el.dataset.toggle;
+      state.openSections[key] = !state.openSections[key];
+      render();
+    });
+  });
+  document.querySelectorAll('[data-seg-field]').forEach(el=>{
+    el.addEventListener('input', ()=>{
+      const [id, field] = el.dataset.segField.split(':');
+      const seg = state.segments.find(s=>s.id==id);
+      seg[field] = (field==='longueur'||field==='pente') ? parseFloat(el.value)||0 : el.value;
+      render();
+    });
+  });
+  document.querySelectorAll('[data-remove-seg]').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      state.segments = state.segments.filter(s=>s.id != el.dataset.removeSeg);
+      render();
+    });
+  });
+  const addSeg = document.querySelector('[data-add-seg]');
+  if(addSeg) addSeg.addEventListener('click', ()=>{
+    state.segments.push({ id: segIdCounter++, longueur:5, type:'mur', pente:0 });
+    render();
+  });
+  const closedToggle = document.getElementById('closedToggle');
+  if(closedToggle) closedToggle.addEventListener('change', ()=>{
+    state.closed = closedToggle.checked;
+    render();
+  });
+  document.querySelectorAll('[data-pt-field]').forEach(el=>{
+    el.addEventListener('change', ()=>{
+      const idx = parseInt(el.dataset.ptField,10);
+      state.points[idx].support = el.value;
+      render();
+    });
+  });
+  document.querySelectorAll('[data-param]').forEach(el=>{
+    el.addEventListener('input', ()=>{
+      const key = el.dataset.param;
+      state.params[key] = el.tagName==='SELECT' ? el.value : parseFloat(el.value)||0;
+      render();
+    });
+  });
+  document.querySelectorAll('[data-param-chk]').forEach(el=>{
+    el.addEventListener('change', ()=>{
+      state.params[el.dataset.paramChk] = el.checked;
+      render();
+    });
+  });
+  document.querySelectorAll('[data-price]').forEach(el=>{
+    el.addEventListener('input', ()=>{
+      state.prices[el.dataset.price] = parseFloat(el.value)||0;
+      render();
+    });
+  });
+}
+
+render();
+</script>
+</body>
+</html>
