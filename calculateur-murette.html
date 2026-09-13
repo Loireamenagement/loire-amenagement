@@ -934,7 +934,7 @@ function attachHandlers(){
     });
   });
   document.querySelectorAll('[data-seg-field]').forEach(el=>{
-    el.addEventListener('input', ()=>{
+    el.addEventListener('change', ()=>{
       const [id, field] = el.dataset.segField.split(':');
       const seg = state.segments.find(s=>s.id==id);
       seg[field] = (field==='longueur'||field==='pente') ? parseFloat(el.value)||0 : el.value;
@@ -965,7 +965,7 @@ function attachHandlers(){
     });
   });
   document.querySelectorAll('[data-param]').forEach(el=>{
-    el.addEventListener('input', ()=>{
+    el.addEventListener('change', ()=>{
       const key = el.dataset.param;
       state.params[key] = el.tagName==='SELECT' ? el.value : parseFloat(el.value)||0;
       render();
@@ -978,9 +978,19 @@ function attachHandlers(){
     });
   });
   document.querySelectorAll('[data-price]').forEach(el=>{
-    el.addEventListener('input', ()=>{
+    el.addEventListener('change', ()=>{
       state.prices[el.dataset.price] = parseFloat(el.value)||0;
       render();
+    });
+  });
+
+  // Confort de saisie mobile : clavier décimal + sélection automatique du contenu au focus
+  document.querySelectorAll('input[type=number]').forEach(el=>{
+    el.setAttribute('inputmode','decimal');
+  });
+  document.querySelectorAll('input[type=number], input[type=text]').forEach(el=>{
+    el.addEventListener('focus', ()=>{
+      try{ el.select(); }catch(e){}
     });
   });
 }
