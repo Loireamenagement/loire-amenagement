@@ -550,9 +550,7 @@ function homeHTML(isT) {
           </div>
           <div style="${sf(`font-size:12px;font-weight:700;color:${PRIX_COL[v.prix]};flex-shrink:0`)}">${v.prix}</div>
         </button>
-          <button onclick="event.stopPropagation();addVedetteToPanier('${v.id}')" style="position:absolute;top:6px;right:6px;width:22px;height:22px;border-radius:50%;border:2px solid ${S.panier.find(x=>x.id==='vedette_'+v.id)?'#9A7020':'rgba(0,0,0,.15)'};background:${S.panier.find(x=>x.id==='vedette_'+v.id)?'#9A7020':'rgba(255,255,255,.9)'};cursor:pointer;font-size:10px;font-weight:700;color:${S.panier.find(x=>x.id==='vedette_'+v.id)?'#fff':'#999'}">${S.panier.find(x=>x.id==='vedette_'+v.id)?'✓':'+'}</button>
-          </div>
-        <button onclick="event.stopPropagation();addVedetteToPanier('${v.id}')" style="position:absolute;top:8px;right:8px;width:26px;height:26px;border-radius:50%;border:2px solid ${S.panier.find(x=>x.id==='vedette_'+v.id)?'#9A7020':'rgba(0,0,0,.15)'};background:${S.panier.find(x=>x.id==='vedette_'+v.id)?'#9A7020':'rgba(255,255,255,.9)'};cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:${S.panier.find(x=>x.id==='vedette_'+v.id)?'#fff':'#999'};box-shadow:0 1px 4px rgba(0,0,0,.15)">${S.panier.find(x=>x.id==='vedette_'+v.id)?'✓':'+'}</button>
+          <button onclick="event.stopPropagation();addVedetteToPanier('${v.id}')" style="position:absolute;top:8px;right:8px;width:26px;height:26px;border-radius:50%;border:2px solid ${S.panier.find(x=>x.id==='vedette_'+v.id)?'#9A7020':'rgba(0,0,0,.15)'};background:${S.panier.find(x=>x.id==='vedette_'+v.id)?'#9A7020':'rgba(255,255,255,.9)'};cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:${S.panier.find(x=>x.id==='vedette_'+v.id)?'#fff':'#999'};box-shadow:0 1px 4px rgba(0,0,0,.15)">${S.panier.find(x=>x.id==='vedette_'+v.id)?'✓':'+'}</button>
         </div>`).join('')}
       </div>
     </div>
@@ -681,7 +679,6 @@ function prestationsHTML(isT) {
     <div style="display:grid;grid-template-columns:${isT?'repeat(3,1fr)':'1fr 1fr'};gap:${isT?16:10}px;padding:${isT?'20px 32px 24px':'12px 14px 14px'}">
       ${liste.map(p=>`
       <div style="position:relative">
-        <div style="position:relative">
         <button class="card" onclick="goTo('pdet',{selP:PRESTATIONS.find(x=>x.id==='${p.id}'),pTab:'presentation'})" style="width:100%">
           <div style="background:${p.bg};padding:${isT?'22px 18px 16px':'18px 14px 14px'};display:flex;flex-direction:column;gap:9px">
             <div style="color:${p.col};width:${isT?36:30}px;height:${isT?36:30}px">${ICONS[p.id]||''}</div>
