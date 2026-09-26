@@ -627,7 +627,7 @@ function homeHTML(isT) {
       </div>
       <div style="display:grid;grid-template-columns:${isT?'repeat(3,1fr)':'1fr'};gap:${isT?12:8}px;min-width:0;width:100%">
         ${top.map(v=>`
-        <div style="position:relative"><button class="card" onclick="goTo('vdet',{selV:VEDETTES.find(x=>x.id==='${v.id}')})" style="display:flex;align-items:center;gap:12px;padding:12px 14px;width:100%">
+        <div style="position:relative;min-width:0"><button class="card" onclick="goTo('vdet',{selV:VEDETTES.find(x=>x.id==='${v.id}')})" style="display:flex;align-items:center;gap:12px;padding:12px 14px;width:100%;min-width:0">
           <div style="width:44px;height:44px;border-radius:8px;background:${v.bg};display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px">⭐</div>
           <div style="flex:1;overflow:hidden">
             <div style="${sf('font-size:12px;font-weight:700;color:#1a1a1a;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis')}">${esc(v.nom)}</div>
