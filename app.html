@@ -43,7 +43,8 @@ html,body{height:100%;background:#e8e8e8;font-family:-apple-system,BlinkMacSyste
 </head>
 <body>
 <div id="app"></div>
-<script>window.PHOTOS_DB = window.PHOTOS_DB || {};</script>
+<script src="photos.js"></script>
+<script>if(typeof PHOTOS_DB === "undefined"){ window.PHOTOS_DB = {}; }</script>
 <script src="photos_patch.js"></script>
 <script>
 
@@ -271,7 +272,8 @@ const MAT_CATS = [
     {n:"Panneaux rigides MRT", d:"Avec ou sans occultation. Robuste et économique. Marque MRT.", c1:"#787878", c2:"#a8a8a8", use:"Clôtures", photoKey:"panneauxRigidesMRT", docs:[{label:"📋 Fiche technico-commerciale", url:"docs/fiche-panneaux-rigides-mrt.pdf"},{label:"📋 Panneau rigide Pro", url:"docs/panneau-rigide-pro.pdf"},{label:"📋 Lanières et lattes Morel", url:"docs/morel-lanieres-lattes.pdf"},{label:"📋 Occultation Bermudes", url:"docs/occultation-bermudes.pdf"},{label:"📋 Occultation composite premium", url:"docs/occultation-composite-premium.pdf"},{label:"📋 Occultation PVC M55", url:"docs/occultation-pvc-m55.pdf"},{label:"📋 Plaque de soubassement", url:"docs/plaque-soubassement.pdf"},{label:"📋 Poteau Wiclip", url:"docs/poteau-wiclip.pdf"}]},
     {n:"Composite Traumgarten", d:"Aspect bois, 0 entretien. Résiste humidité et UV. Marque Traumgarten.", c1:"#987060", c2:"#b89080", use:"Clôtures", photoKey:"compositeTraumgarten", docs:[{label:"📋 Fiche technico-commerciale", url:"docs/fiche-composite-traumgarten.pdf"},{label:"📖 Catalogue Traumgarten®", url:"docs/catalogue-traumgarten.pdf"}]},
     {n:"Aluminium thermolaqué", d:"Artisanal VMA ou industriel. Léger, imputrescible, coloris RAL au choix.", c1:"#a0a8b0", c2:"#c8d0d8", use:"Clôtures · Portails"},
-    {n:"Panneaux bois", d:"Naturel et chaleureux. Marques Bois Expo Distribution, Gardival.", c1:"#c8a870", c2:"#e0c898", use:"Clôtures", photoKey:"clotureLamesBois", docs:[{label:"📋 Fiche lames Pin Cl.4", url:"docs/fiche-lames-bois-pin-cl4.pdf"},{label:"📋 Fiche claire-voie Pin Cl.4", url:"docs/fiche-claire-voie-pin-cl4.pdf"}]},
+    {n:"Lames bois Pin Cl.4", d:"Lames horizontales massives en pin traité autoclave Cl.4. Occultation totale. Marques Bois Expo Distribution, Gardival.", c1:"#c8a870", c2:"#e0c898", use:"Clôtures", photoKey:"clotureLamesBois", docs:[{label:"📋 Fiche technico-commerciale", url:"docs/fiche-lames-bois-pin-cl4.pdf"}]},
+    {n:"Claire-voie Pin Cl.4", d:"Lame emboîtement double face. Pin traité autoclave Classe 4. Marques Bois Expo Distribution, Gardival.", c1:"#a0724a", c2:"#c89060", use:"Clôtures", photoKey:"claireVoieBois", docs:[{label:"📋 Fiche technico-commerciale", url:"docs/fiche-claire-voie-pin-cl4.pdf"}]},
     {n:"Ganivelles et rondins", d:"Traverses bois rustiques. Idéal pour jardins naturels et délimitations champêtres.", c1:"#a07848", c2:"#c09870", use:"Clôtures · Jardins"},
     {n:"Palissades béton matricé", d:"Durables et esthétiques. Marques Méhat, Nicolas, Girpav.", c1:"#b0a898", c2:"#d0c8bc", use:"Clôtures"},
     {n:"Barreaudages acier", d:"Structures robustes et élégantes. Traitement anti-corrosion.", c1:"#686868", c2:"#989898", use:"Clôtures · Portails"},
@@ -796,7 +798,8 @@ function prestationDetailHTML(isT) {
   const inPanier = S.panier.find(x=>x.id==='presta_'+p.id);
 
   // Photo (réelle si photoKey disponible, sinon placeholder)
-  const pPhotos = matPhotos(p);
+  const catPhotos = (typeof PHOTOS_DB!=="undefined"&&PHOTOS_DB[p.id]&&PHOTOS_DB[p.id].length) ? PHOTOS_DB[p.id] : (p.photos||[]);
+  const pPhotos = catPhotos.length ? catPhotos : matPhotos(p);
   window.__galleryPhotos = pPhotos;
   const photoHTML = pPhotos.length
     ? `<div onclick="openLightbox(window.__galleryPhotos,0)" style="height:${isT?240:180}px;position:relative;overflow:hidden;cursor:pointer">
@@ -809,7 +812,7 @@ function prestationDetailHTML(isT) {
   </div>`;
 
   const tabs = `<div style="background:#fdfcf9;display:flex;border-bottom:1px solid #e8e0d4">
-    ${[['presentation','Présentation'],['materiaux','Matériaux'],['etapes','Étapes']].map(([id,lb])=>`
+    ${[['presentation','Présentation'],['materiaux','Matériaux'],['etapes','Étapes'],...(catPhotos.length?[['galerie','📷 Galerie']]:[])].map(([id,lb])=>`
     <button class="dtab" onclick="S.pTab='${id}';render()" style="color:${S.pTab===id?p.col:'#6b6b6b'};border-bottom-color:${S.pTab===id?p.col:'transparent'};font-size:${isT?11:10}px">${lb}</button>`).join('')}
   </div>`;
 
@@ -851,6 +854,15 @@ function prestationDetailHTML(isT) {
       </div>
       <div style="padding-top:6px;font-size:${isT?14:12}px;font-weight:600;color:#1a1a1a;font-family:'DM Sans',sans-serif">${esc(e)}</div>
     </div>`).join('');
+  }
+
+  if(S.pTab==='galerie' && catPhotos.length) {
+    tabContent = `<div style="display:grid;grid-template-columns:${isT?'1fr 1fr':'1fr'};gap:10px;padding-bottom:8px">
+      ${catPhotos.map((ph,i)=>`<div onclick="openLightbox(window.__galleryPhotos,${i})" style="border-radius:10px;overflow:hidden;aspect-ratio:4/3;cursor:pointer;position:relative">
+        <img src="${ph}" style="width:100%;height:100%;object-fit:cover" />
+        <div style="position:absolute;bottom:8px;right:8px;width:26px;height:26px;border-radius:50%;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px">⛶</div>
+      </div>`).join('')}
+    </div>`;
   }
 
   const inPanierKey = 'presta_'+p.id;
