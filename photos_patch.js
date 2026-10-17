@@ -17,4 +17,5 @@ if(typeof PHOTOS_DB !== "undefined") {
   PHOTOS_DB["pergolaAluminium"] = ["photos/materiaux/pergola-aluminium-1.jpeg", "photos/materiaux/pergola-aluminium-2.jpeg", "photos/materiaux/pergola-aluminium-3.jpeg"];
   PHOTOS_DB["storeVelumPergola"] = ["photos/materiaux/store-velum-pergola-1.jpeg", "photos/materiaux/store-velum-pergola-2.jpeg"];
   PHOTOS_DB["gazonSynthetique"] = ["photos/materiaux/gazonSynthetique-1.jpeg", "photos/materiaux/gazonSynthetique-2.jpeg", "photos/materiaux/gazonSynthetique-3.jpeg", "photos/materiaux/gazonSynthetique-4.jpeg", "photos/materiaux/gazonSynthetique-5.jpeg", "photos/materiaux/gazonSynthetique-6.jpeg", "photos/materiaux/gazonSynthetique-7.jpeg"];
+  PHOTOS_DB["portails"] = ["photos/materiaux/portails-1.jpeg", "photos/materiaux/portails-2.jpeg", "photos/materiaux/portails-3.jpeg", "photos/materiaux/portails-4.jpeg", "photos/materiaux/portails-5.jpeg", "photos/materiaux/portails-6.jpeg", "photos/materiaux/portails-7.jpeg", "photos/materiaux/portails-8.jpeg"];
 }
